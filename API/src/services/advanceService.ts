@@ -26,8 +26,8 @@ export class AdvanceService {
       throw new Error('Employee not found');
     }
 
+    // Keep the UTC midnight a yyyy-mm-dd string parses to, so the stored day matches
     const advanceDate = new Date(date);
-    advanceDate.setHours(0, 0, 0, 0);
 
     const advance = await prisma.advance.create({
       data: {

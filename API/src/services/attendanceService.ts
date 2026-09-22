@@ -26,8 +26,9 @@ export class AttendanceService {
       throw new Error('Employee not found');
     }
 
+    // A yyyy-mm-dd string already parses as UTC midnight, which is how the date-only
+    // column stores the day. Zeroing local hours would move it to the previous UTC day.
     const attendanceDate = new Date(date);
-    attendanceDate.setHours(0, 0, 0, 0);
 
     // Calculate daily salary based on attendance type
     // For constant salary employees, don't calculate daily salary (set to 0)
@@ -81,8 +82,8 @@ export class AttendanceService {
     }
 
     // Auto-recalculate salary for this employee's month/year
-    const month = attendanceDate.getMonth() + 1;
-    const year = attendanceDate.getFullYear();
+    const month = attendanceDate.getUTCMonth() + 1;
+    const year = attendanceDate.getUTCFullYear();
     try {
       const salaryService = new SalaryService();
       await salaryService.calculateSalary(employeeId, month, year);
