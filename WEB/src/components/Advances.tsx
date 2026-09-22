@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
-import { formatDate } from '../utils/formatDate';
+import { formatDate, toLocalDateKey } from '../utils/formatDate';
 import './Advances.css';
 
 interface Employee {
@@ -28,11 +28,14 @@ export default function Advances() {
     employeeId: 0,
     amount: 0,
     remark: '',
-    date: new Date().toISOString().split('T')[0],
+    date: toLocalDateKey(),
   });
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date(new Date().setDate(1)).toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0],
+  const [dateRange, setDateRange] = useState(() => {
+    const now = new Date();
+    return {
+      startDate: toLocalDateKey(new Date(now.getFullYear(), now.getMonth(), 1)),
+      endDate: toLocalDateKey(now),
+    };
   });
 
   useEffect(() => {
@@ -72,6 +75,10 @@ export default function Advances() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.date > toLocalDateKey()) {
+      alert('Advance date cannot be in the future.');
+      return;
+    }
     try {
       await apiClient.createAdvance(
         formData.employeeId,
@@ -118,7 +125,7 @@ export default function Advances() {
       employeeId: 0,
       amount: 0,
       remark: '',
-      date: new Date().toISOString().split('T')[0],
+      date: toLocalDateKey(),
     });
   };
 
@@ -293,6 +300,7 @@ export default function Advances() {
                   type="date"
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  max={toLocalDateKey()}
                   required
                 />
               </div>
