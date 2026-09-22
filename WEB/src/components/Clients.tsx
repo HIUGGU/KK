@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client';
 import './Clients.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface Client {
   id?: number;
@@ -84,7 +85,7 @@ export default function Clients() {
       loadClients();
     } catch (error: any) {
       console.error('Failed to save client:', error);
-      alert(error.message || 'Failed to save client. Please try again.');
+      notify.error(error.message || 'Failed to save client. Please try again.');
     }
   };
 
@@ -95,13 +96,13 @@ export default function Clients() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this client?')) {
+    if (await confirmDialog('Are you sure you want to delete this client?', { confirmLabel: 'Delete', danger: true })) {
       try {
         await apiClient.deleteClient(id);
         loadClients();
       } catch (error: any) {
         console.error('Failed to delete client:', error);
-        alert(error.message || 'Failed to delete client. Please try again.');
+        notify.error(error.message || 'Failed to delete client. Please try again.');
       }
     }
   };
@@ -137,7 +138,7 @@ export default function Clients() {
       setShowPriceModal(true);
     } catch (error: any) {
       console.error('Failed to load client prices:', error);
-      alert(error.message || 'Failed to load client prices.');
+      notify.error(error.message || 'Failed to load client prices.');
     }
   };
 
@@ -154,7 +155,7 @@ export default function Clients() {
   const handleSavePrice = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!priceFormData.product_id) {
-      alert('Please select a product.');
+      notify.error('Please select a product.');
       return;
     }
     try {
@@ -171,7 +172,7 @@ export default function Clients() {
       resetPriceForm();
     } catch (error: any) {
       console.error('Failed to save price:', error);
-      alert(error.message || 'Failed to save price. Please try again.');
+      notify.error(error.message || 'Failed to save price. Please try again.');
     }
   };
 
@@ -187,14 +188,14 @@ export default function Clients() {
   };
 
   const handleDeletePrice = async (id: number) => {
-    if (confirm('Remove this special price? Orders will fall back to the standard product rate.')) {
+    if (await confirmDialog('Remove this special price? Orders will fall back to the standard product rate.', { confirmLabel: 'Remove', danger: true })) {
       try {
         await apiClient.deleteClientProductPrice(id);
         await reloadClientPrices();
         if (editingPriceId === id) resetPriceForm();
       } catch (error: any) {
         console.error('Failed to delete price:', error);
-        alert(error.message || 'Failed to delete price. Please try again.');
+        notify.error(error.message || 'Failed to delete price. Please try again.');
       }
     }
   };

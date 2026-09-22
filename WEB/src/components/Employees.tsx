@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client';
 import './Employees.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface Employee {
   id?: number;
@@ -54,7 +55,7 @@ export default function Employees() {
     // so it is only checked and sent when it can actually be set here.
     const salaryEditable = !editingEmployee || formData.is_constant_salary;
     if (salaryEditable && !(formData.base_salary > 0)) {
-      alert('Salary must be more than zero');
+      notify.error('Salary must be more than zero');
       return;
     }
     try {
@@ -70,7 +71,7 @@ export default function Employees() {
       loadEmployees();
     } catch (error: any) {
       console.error('Failed to save employee:', error);
-      alert(error.message || 'Failed to save employee. Please try again.');
+      notify.error(error.message || 'Failed to save employee. Please try again.');
     }
   };
 
@@ -81,13 +82,13 @@ export default function Employees() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this employee?')) {
+    if (await confirmDialog('Are you sure you want to delete this employee?', { confirmLabel: 'Delete', danger: true })) {
       try {
         await apiClient.deleteEmployee(id);
         loadEmployees();
       } catch (error: any) {
         console.error('Failed to delete employee:', error);
-        alert(error.message || 'Failed to delete employee. Please try again.');
+        notify.error(error.message || 'Failed to delete employee. Please try again.');
       }
     }
   };

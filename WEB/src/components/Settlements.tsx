@@ -2,6 +2,7 @@ import { useState, useEffect, Fragment } from 'react';
 import { apiClient } from '../api/client';
 import { Settlement, SettlementGroupDetail, groupSettlements, groupEvents, groupTotals } from './SettlementDetail';
 import './Settlements.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface Client {
   id: number;
@@ -201,7 +202,7 @@ export default function Settlements() {
   };
 
   const handleDeleteSettlement = async (id: number) => {
-    if (!confirm('Undo this settlement? The client balance and any orders it closed will be restored.')) return;
+    if (!(await confirmDialog('Undo this settlement? The client balance and any orders it closed will be restored.', { confirmLabel: 'Undo', danger: true }))) return;
     try {
       await apiClient.deleteSettlement(id);
       await loadSummary();
@@ -209,7 +210,7 @@ export default function Settlements() {
       await loadClientBalances();
     } catch (error: any) {
       console.error('Failed to delete settlement:', error);
-      alert(error.message || 'Failed to delete settlement. Please try again.');
+      notify.error(error.message || 'Failed to delete settlement. Please try again.');
     }
   };
 

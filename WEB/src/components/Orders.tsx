@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import './Orders.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface OrderItem {
   product_id: number;
@@ -173,13 +174,13 @@ export default function Orders() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this order?')) {
+    if (await confirmDialog('Are you sure you want to delete this order?', { confirmLabel: 'Delete', danger: true })) {
       try {
         await apiClient.deleteOrder(id);
         loadOrders();
       } catch (error: any) {
         console.error('Failed to delete order:', error);
-        alert(error.message || 'Failed to delete order. Please try again.');
+        notify.error(error.message || 'Failed to delete order. Please try again.');
       }
     }
   };

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import { formatDate } from '../utils/formatDate';
+import { notify } from '../utils/notify';
 import './Attendance.css';
 
 interface Employee {
@@ -35,10 +36,14 @@ export default function Attendance() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date(new Date().setDate(1)).toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0],
+  // Local-day keys: toISOString() is UTC, which is still yesterday before 05:30 IST
+  const [selectedDate, setSelectedDate] = useState(() => toDateKey(new Date()));
+  const [dateRange, setDateRange] = useState(() => {
+    const now = new Date();
+    return {
+      startDate: toDateKey(new Date(now.getFullYear(), now.getMonth(), 1)),
+      endDate: toDateKey(now),
+    };
   });
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const now = new Date();
@@ -109,10 +114,13 @@ export default function Attendance() {
       loadMonthAttendance();
       const typeLabel = attendanceType === 'full_day' ? 'Full Day' : 
                         attendanceType === 'half_day' ? 'Half Day' : 'Absent';
-      alert(`${typeLabel} marked successfully!\nDaily Salary: ₹${result.daily_salary.toFixed(2)}`);
+      const employee = employees.find((e) => e.id === employeeId);
+      notify.success(
+        `${typeLabel} marked for ${employee?.name ?? 'employee'} on ${formatDate(date)} · Daily Salary: ₹${result.daily_salary.toFixed(2)}`
+      );
     } catch (error: any) {
       console.error('Failed to mark attendance:', error);
-      alert(error.message || 'Failed to mark attendance. Please try again.');
+      notify.error(error.message || 'Failed to mark attendance. Please try again.');
     }
   };
 

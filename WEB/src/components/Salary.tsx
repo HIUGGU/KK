@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import './Salary.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface SalaryPayment {
   id?: number;
@@ -103,7 +104,7 @@ export default function Salary() {
 
     const amount = parseFloat(payAmount);
     if (!amount || amount <= 0) {
-      alert('Enter a payment amount greater than zero.');
+      notify.error('Enter a payment amount greater than zero.');
       return;
     }
 
@@ -119,21 +120,21 @@ export default function Salary() {
       loadLedger();
     } catch (error: any) {
       console.error('Failed to record payment:', error);
-      alert(error.message || 'Failed to record payment. Please try again.');
+      notify.error(error.message || 'Failed to record payment. Please try again.');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDeletePayment = async (payment: SalaryPayment) => {
-    if (!confirm(`Delete the ${money(payment.amount)} payment dated ${formatDate(payment.payment_date)}?`)) {
+    if (!(await confirmDialog(`Delete the ${money(payment.amount)} payment dated ${formatDate(payment.payment_date)}?`, { confirmLabel: 'Delete', danger: true }))) {
       return;
     }
     try {
       await apiClient.deleteSalaryPayment(payment.id!);
       loadLedger();
     } catch (error: any) {
-      alert(error.message || 'Failed to delete payment.');
+      notify.error(error.message || 'Failed to delete payment.');
     }
   };
 

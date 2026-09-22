@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import { formatDate } from '../utils/formatDate';
 import './Products.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface Product {
   id?: number;
@@ -162,7 +163,7 @@ export default function Products() {
       loadProducts();
     } catch (error: any) {
       console.error('Failed to save product:', error);
-      alert(error.message || 'Failed to save product. Please try again.');
+      notify.error(error.message || 'Failed to save product. Please try again.');
     }
   };
 
@@ -187,13 +188,13 @@ export default function Products() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this product?')) {
+    if (await confirmDialog('Are you sure you want to delete this product?', { confirmLabel: 'Delete', danger: true })) {
       try {
         await apiClient.deleteProduct(id);
         loadProducts();
       } catch (error: any) {
         console.error('Failed to delete product:', error);
-        alert(error.message || 'Failed to delete product. Please try again.');
+        notify.error(error.message || 'Failed to delete product. Please try again.');
       }
     }
   };
@@ -237,7 +238,7 @@ export default function Products() {
       setShowRateModal(true);
     } catch (error: any) {
       console.error('Failed to load rate history:', error);
-      alert(error.message || 'Failed to load rate history.');
+      notify.error(error.message || 'Failed to load rate history.');
     }
   };
 
@@ -267,7 +268,7 @@ export default function Products() {
       });
     } catch (error: any) {
       console.error('Failed to add rate:', error);
-      alert(error.message || 'Failed to add rate. Please try again.');
+      notify.error(error.message || 'Failed to add rate. Please try again.');
     }
   };
 

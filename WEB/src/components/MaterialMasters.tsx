@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import './MaterialMasters.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface Master {
   id?: number;
@@ -79,12 +80,12 @@ export default function MaterialMasters() {
       loadAll();
     } catch (error: any) {
       console.error('Failed to save master:', error);
-      alert(error.message || 'Failed to save. Please try again.');
+      notify.error(error.message || 'Failed to save. Please try again.');
     }
   };
 
   const handleDelete = async (kind: MasterKind, master: Master) => {
-    if (!confirm(`Are you sure you want to delete "${master.name}"?`)) return;
+    if (!(await confirmDialog(`Are you sure you want to delete "${master.name}"?`, { confirmLabel: 'Delete', danger: true }))) return;
     try {
       if (kind === 'point') {
         await apiClient.deleteMaterialPoint(master.id!);
@@ -94,7 +95,7 @@ export default function MaterialMasters() {
       loadAll();
     } catch (error: any) {
       console.error('Failed to delete master:', error);
-      alert(error.message || 'Failed to delete. Please try again.');
+      notify.error(error.message || 'Failed to delete. Please try again.');
     }
   };
 

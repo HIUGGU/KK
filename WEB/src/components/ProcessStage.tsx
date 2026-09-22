@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import { formatDate } from '../utils/formatDate';
 import './ProcessStage.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 /**
  * One stage of the line: plasma, tinker or buffing. They behave identically -
@@ -324,11 +325,11 @@ export default function ProcessStage({ stage }: { stage: Stage }) {
       (i) => Number(i.product_id) > 0 && Number(i.quantity) > 0,
     );
     if (lines.length === 0) {
-      alert('Add at least one product with a count.');
+      notify.error('Add at least one product with a count.');
       return;
     }
     if (form.mode === 'vendor' && !form.vendor_id) {
-      alert(`Select the vendor doing the ${config.label.toLowerCase()} work.`);
+      notify.error(`Select the vendor doing the ${config.label.toLowerCase()} work.`);
       return;
     }
 
@@ -356,7 +357,7 @@ export default function ProcessStage({ stage }: { stage: Stage }) {
       loadAll();
     } catch (error: any) {
       console.error('Failed to save job:', error);
-      alert(error.message || 'Failed to save the job.');
+      notify.error(error.message || 'Failed to save the job.');
     } finally {
       setSaving(false);
     }
@@ -365,9 +366,7 @@ export default function ProcessStage({ stage }: { stage: Stage }) {
   const handleWorkStatus = async (job: ProcessJob, completed: boolean) => {
     if (
       !completed &&
-      !confirm(
-        `Reopen ${job.job_number}? Its pieces stop being available to the next stage.`,
-      )
+      !(await confirmDialog(`Reopen ${job.job_number}? Its pieces stop being available to the next stage.`, { confirmLabel: 'Reopen' }))
     )
       return;
     try {
@@ -379,18 +378,18 @@ export default function ProcessStage({ stage }: { stage: Stage }) {
       loadAll();
     } catch (error: any) {
       console.error('Failed to update the job status:', error);
-      alert(error.message || 'Failed to update the job status.');
+      notify.error(error.message || 'Failed to update the job status.');
     }
   };
 
   const handleDeleteJob = async (job: ProcessJob) => {
-    if (!confirm(`Delete job ${job.job_number}?`)) return;
+    if (!(await confirmDialog(`Delete job ${job.job_number}?`, { confirmLabel: 'Delete', danger: true }))) return;
     try {
       await apiClient.deleteProcessJob(stage, job.id!);
       loadAll();
     } catch (error: any) {
       console.error('Failed to delete job:', error);
-      alert(error.message || 'Failed to delete the job.');
+      notify.error(error.message || 'Failed to delete the job.');
     }
   };
 
@@ -433,7 +432,7 @@ export default function ProcessStage({ stage }: { stage: Stage }) {
   const handleSaveRate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!rateForm.vendor_id || !rateForm.product_id) {
-      alert('Pick a vendor and a product.');
+      notify.error('Pick a vendor and a product.');
       return;
     }
     try {
@@ -450,18 +449,18 @@ export default function ProcessStage({ stage }: { stage: Stage }) {
       await loadRates(rateForm.vendor_id);
     } catch (error: any) {
       console.error('Failed to save rate:', error);
-      alert(error.message || 'Failed to save the rate.');
+      notify.error(error.message || 'Failed to save the rate.');
     }
   };
 
   const handleDeleteRate = async (rate: StageRate) => {
-    if (!confirm(`Delete the ${rate.effective_date} rate for ${rate.product_name}?`)) return;
+    if (!(await confirmDialog(`Delete the ${rate.effective_date} rate for ${rate.product_name}?`, { confirmLabel: 'Delete', danger: true }))) return;
     try {
       await apiClient.deleteProcessRate(stage, rate.id!);
       await loadRates(rateVendorId);
     } catch (error: any) {
       console.error('Failed to delete rate:', error);
-      alert(error.message || 'Failed to delete the rate.');
+      notify.error(error.message || 'Failed to delete the rate.');
     }
   };
 

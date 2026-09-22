@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { apiClient } from '../api/client';
 import './Cutting.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface Product {
   id?: number;
@@ -319,22 +320,22 @@ export default function Cutting() {
     e.preventDefault();
 
     if (selectedIds.length === 0) {
-      alert('Select at least one raw material line to cut.');
+      notify.error('Select at least one raw material line to cut.');
       return;
     }
     if (selectedMaterials.some(material => !matchesSpec(material))) {
-      alert('Every line in one cutting must share the same point and size.');
+      notify.error('Every line in one cutting must share the same point and size.');
       return;
     }
 
     const outputs = outputRows.filter(row => row.product_id > 0 && row.quantity > 0);
     if (outputs.length === 0) {
-      alert('Add at least one finished product with a count above zero.');
+      notify.error('Add at least one finished product with a count above zero.');
       return;
     }
     const productIds = outputs.map(row => row.product_id);
     if (new Set(productIds).size !== productIds.length) {
-      alert('The same product is listed twice. Combine the counts into a single line.');
+      notify.error('The same product is listed twice. Combine the counts into a single line.');
       return;
     }
 
@@ -359,7 +360,7 @@ export default function Cutting() {
       loadCuttings();
     } catch (error: any) {
       console.error('Failed to save cutting:', error);
-      alert(error.message || 'Failed to save. Please try again.');
+      notify.error(error.message || 'Failed to save. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -369,13 +370,13 @@ export default function Cutting() {
     const message =
       `Delete ${cutting.cutting_number}?\n\n` +
       `Its ${cutting.input_count} raw material ${cutting.input_count === 1 ? 'line goes' : 'lines go'} back to In Stock.`;
-    if (!confirm(message)) return;
+    if (!(await confirmDialog(message, { confirmLabel: 'Delete', danger: true }))) return;
     try {
       await apiClient.deleteCutting(cutting.id!);
       loadCuttings();
     } catch (error: any) {
       console.error('Failed to delete cutting:', error);
-      alert(error.message || 'Failed to delete cutting.');
+      notify.error(error.message || 'Failed to delete cutting.');
     }
   };
 

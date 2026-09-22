@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import './Vendors.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface Point {
   id?: number;
@@ -113,7 +114,7 @@ export default function Vendors() {
       loadVendors();
     } catch (error: any) {
       console.error('Failed to save vendor:', error);
-      alert(error.message || 'Failed to save vendor. Please try again.');
+      notify.error(error.message || 'Failed to save vendor. Please try again.');
     }
   };
 
@@ -124,13 +125,13 @@ export default function Vendors() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this vendor?')) {
+    if (await confirmDialog('Are you sure you want to delete this vendor?', { confirmLabel: 'Delete', danger: true })) {
       try {
         await apiClient.deleteVendor(id);
         loadVendors();
       } catch (error: any) {
         console.error('Failed to delete vendor:', error);
-        alert(error.message || 'Failed to delete vendor. Please try again.');
+        notify.error(error.message || 'Failed to delete vendor. Please try again.');
       }
     }
   };
@@ -165,14 +166,14 @@ export default function Vendors() {
       setShowRateModal(true);
     } catch (error: any) {
       console.error('Failed to load vendor rates:', error);
-      alert(error.message || 'Failed to load vendor rates.');
+      notify.error(error.message || 'Failed to load vendor rates.');
     }
   };
 
   const handleAddRate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!rateForm.point_id) {
-      alert('Please select a point.');
+      notify.error('Please select a point.');
       return;
     }
     try {
@@ -181,18 +182,18 @@ export default function Vendors() {
       setRateForm({ ...rateForm, rate_per_kg: 0, notes: '' });
     } catch (error: any) {
       console.error('Failed to save rate:', error);
-      alert(error.message || 'Failed to save rate. Please try again.');
+      notify.error(error.message || 'Failed to save rate. Please try again.');
     }
   };
 
   const handleDeleteRate = async (rate: VendorRate) => {
-    if (!confirm(`Delete the ${rate.effective_date} rate for ${rate.point_name}?`)) return;
+    if (!(await confirmDialog(`Delete the ${rate.effective_date} rate for ${rate.point_name}?`, { confirmLabel: 'Delete', danger: true }))) return;
     try {
       await apiClient.deleteVendorRate(rate.id!);
       await loadRates(rateVendor!.id!);
     } catch (error: any) {
       console.error('Failed to delete rate:', error);
-      alert(error.message || 'Failed to delete rate. Please try again.');
+      notify.error(error.message || 'Failed to delete rate. Please try again.');
     }
   };
 

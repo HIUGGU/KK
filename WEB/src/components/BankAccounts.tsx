@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import './BankAccounts.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface BankAccount {
   id?: number;
@@ -54,7 +55,7 @@ export default function BankAccounts() {
       loadAccounts();
     } catch (error: any) {
       console.error('Failed to save bank account:', error);
-      alert(error.message || 'Failed to save bank account. Please try again.');
+      notify.error(error.message || 'Failed to save bank account. Please try again.');
     }
   };
 
@@ -65,13 +66,13 @@ export default function BankAccounts() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this bank account?')) {
+    if (await confirmDialog('Are you sure you want to delete this bank account?', { confirmLabel: 'Delete', danger: true })) {
       try {
         await apiClient.deleteBankAccount(id);
         loadAccounts();
       } catch (error: any) {
         console.error('Failed to delete bank account:', error);
-        alert(error.message || 'Failed to delete bank account. Please try again.');
+        notify.error(error.message || 'Failed to delete bank account. Please try again.');
       }
     }
   };

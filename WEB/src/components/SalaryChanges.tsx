@@ -4,6 +4,7 @@ import { apiClient } from '../api/client';
 import { formatDate, formatDateTime } from '../utils/formatDate';
 import './Employees.css';
 import './SalaryChanges.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface Employee {
   id: number;
@@ -173,18 +174,18 @@ export default function SalaryChanges() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.employeeId) {
-      alert('Please select an employee');
+      notify.error('Please select an employee');
       return;
     }
     if (!hasNewSalary) {
-      alert('Please enter the new salary');
+      notify.error('Please enter the new salary');
       return;
     }
     if (!(newSalaryNum > 0)) {
-      alert('New salary must be more than zero');
+      notify.error('New salary must be more than zero');
       return;
     }
-    if (formChange === 0 && !confirm('The new salary is the same as the current one. Record it anyway?')) {
+    if (formChange === 0 && !(await confirmDialog('The new salary is the same as the current one. Record it anyway?'))) {
       return;
     }
 
@@ -199,7 +200,7 @@ export default function SalaryChanges() {
       setShowModal(false);
       await loadData();
     } catch (error: any) {
-      alert(error.message || 'Failed to record salary change. Please try again.');
+      notify.error(error.message || 'Failed to record salary change. Please try again.');
     } finally {
       setSaving(false);
     }

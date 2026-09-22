@@ -13,6 +13,11 @@ router.post('/', async (req, res) => {
     if (amount <= 0) {
       return res.status(400).json({ error: 'Amount must be greater than 0' });
     }
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    if (String(date).slice(0, 10) > today) {
+      return res.status(400).json({ error: 'Advance date cannot be in the future' });
+    }
     const advance = await advanceService.createAdvance(employeeId, amount, remark || '', date);
     res.json(advance);
   } catch (error: any) {
