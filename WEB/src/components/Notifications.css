@@ -1,0 +1,148 @@
+.app-toasts {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(520px, calc(100% - 32px));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.app-toast {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border-left: 4px solid;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  line-height: 1.4;
+  pointer-events: auto;
+  animation: app-toast-in 0.2s ease-out;
+}
+
+.app-toast-message {
+  white-space: pre-line;
+}
+
+.app-toast.success {
+  background: #e8f6ee;
+  border-color: #27ae60;
+  color: #1e7e46;
+}
+
+.app-toast.error {
+  background: #fdecea;
+  border-color: #e74c3c;
+  color: #c0392b;
+}
+
+.app-toast.info {
+  background: #eaf2fb;
+  border-color: #3498db;
+  color: #1f618d;
+}
+
+.app-toast button {
+  background: none;
+  color: inherit;
+  font-size: 20px;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+@keyframes app-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1900;
+  padding: 16px;
+}
+
+.app-dialog {
+  background: white;
+  border-radius: 10px;
+  padding: 24px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.app-dialog h3 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.app-dialog-message {
+  color: #444;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-line;
+  margin-bottom: 16px;
+}
+
+.app-dialog select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.app-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.app-dialog-actions button {
+  padding: 9px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.app-dialog-cancel {
+  background: #6c757d;
+}
+
+.app-dialog-cancel:hover {
+  background: #5a6268;
+}
+
+.app-dialog-confirm {
+  background: #667eea;
+}
+
+.app-dialog-confirm:hover {
+  background: #5568d3;
+}
+
+.app-dialog-confirm.danger {
+  background: #dc3545;
+}
+
+.app-dialog-confirm.danger:hover {
+  background: #c82333;
+}

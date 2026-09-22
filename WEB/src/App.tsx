@@ -21,6 +21,7 @@ import VendorPayments from './components/VendorPayments';
 import Vendors from './components/Vendors';
 import MaterialMasters from './components/MaterialMasters';
 import Layout from './components/Layout';
+import Notifications from './components/Notifications';
 import { apiClient } from './api/client';
 
 function App() {
@@ -320,6 +321,7 @@ function App() {
           }
         />
       </Routes>
+      <Notifications />
     </Router>
   );
 }

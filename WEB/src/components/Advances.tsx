@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { apiClient } from '../api/client';
 import { formatDate, toLocalDateKey } from '../utils/formatDate';
 import './Advances.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface Employee {
   id?: number;
@@ -24,6 +25,7 @@ export default function Advances() {
   const [advances, setAdvances] = useState<Advance[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [expandedEmployees, setExpandedEmployees] = useState<Set<number>>(new Set());
   const [formData, setFormData] = useState({
     employeeId: 0,
     amount: 0,
@@ -76,7 +78,7 @@ export default function Advances() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.date > toLocalDateKey()) {
-      alert('Advance date cannot be in the future.');
+      notify.error('Advance date cannot be in the future.');
       return;
     }
     try {
@@ -89,10 +91,10 @@ export default function Advances() {
       setShowModal(false);
       resetForm();
       loadAdvances();
-      alert('Advance created successfully!');
+      notify.success('Advance created successfully!');
     } catch (error: any) {
       console.error('Failed to create advance:', error);
-      alert(error.message || 'Failed to create advance. Please try again.');
+      notify.error(error.message || 'Failed to create advance. Please try again.');
     }
   };
 
@@ -100,22 +102,22 @@ export default function Advances() {
     try {
       await apiClient.updateAdvanceStatus(id, status);
       loadAdvances();
-      alert('Advance status updated!');
+      notify.success('Advance status updated!');
     } catch (error: any) {
       console.error('Failed to update advance:', error);
-      alert(error.message || 'Failed to update advance. Please try again.');
+      notify.error(error.message || 'Failed to update advance. Please try again.');
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this advance?')) {
+    if (await confirmDialog('Are you sure you want to delete this advance?', { confirmLabel: 'Delete', danger: true })) {
       try {
         await apiClient.deleteAdvance(id);
         loadAdvances();
-        alert('Advance deleted successfully!');
+        notify.success('Advance deleted successfully!');
       } catch (error: any) {
         console.error('Failed to delete advance:', error);
-        alert(error.message || 'Failed to delete advance. Please try again.');
+        notify.error(error.message || 'Failed to delete advance. Please try again.');
       }
     }
   };
@@ -149,6 +151,33 @@ export default function Advances() {
   const totalAdvance = advances
     .filter(a => a.status !== 'cancelled')
     .reduce((sum, a) => sum + a.amount, 0);
+
+  const toggleEmployee = (employeeId: number) => {
+    setExpandedEmployees((prev) => {
+      const next = new Set(prev);
+      if (next.has(employeeId)) next.delete(employeeId);
+      else next.add(employeeId);
+      return next;
+    });
+  };
+
+  const employeeGroups = Object.values(
+    advances.reduce<Record<number, { employeeId: number; records: Advance[] }>>((groups, advance) => {
+      (groups[advance.employee_id] ??= { employeeId: advance.employee_id, records: [] }).records.push(advance);
+      return groups;
+    }, {})
+  )
+    .map((group) => ({
+      ...group,
+      records: [...group.records].sort((a, b) => b.date.localeCompare(a.date)),
+      total: group.records
+        .filter((a) => a.status !== 'cancelled')
+        .reduce((sum, a) => sum + Number(a.amount), 0),
+      pending: group.records
+        .filter((a) => a.status === 'pending')
+        .reduce((sum, a) => sum + Number(a.amount), 0),
+    }))
+    .sort((a, b) => getEmployeeName(a.employeeId).localeCompare(getEmployeeName(b.employeeId)));
 
   return (
     <div className="advances">
@@ -211,53 +240,91 @@ export default function Advances() {
         <table className="advances-table">
           <thead>
             <tr>
-              <th>Date</th>
+              <th className="expand-col"></th>
               <th>Employee</th>
-              <th>Amount</th>
-              <th>Remark</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>Records</th>
+              <th>Total Advance</th>
+              <th>Pending</th>
+              <th>Latest Date</th>
             </tr>
           </thead>
           <tbody>
-            {advances.length === 0 ? (
+            {employeeGroups.length === 0 ? (
               <tr>
                 <td colSpan={6} style={{ textAlign: 'center', padding: '40px' }}>
                   No advance records found.
                 </td>
               </tr>
             ) : (
-              advances.map((advance) => (
-                <tr key={advance.id}>
-                  <td>{formatDate(advance.date)}</td>
-                  <td>{getEmployeeName(advance.employee_id)}</td>
-                  <td>₹{parseFloat(advance.amount.toString()).toFixed(2)}</td>
-                  <td>{advance.remark || '-'}</td>
-                  <td>
-                    <span className={`status-badge ${getStatusBadgeClass(advance.status)}`}>
-                      {advance.status}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      {advance.status === 'pending' && (
-                        <button
-                          className="btn-cancel"
-                          onClick={() => handleUpdateStatus(advance.id!, 'cancelled')}
-                        >
-                          Cancel
-                        </button>
-                      )}
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDelete(advance.id!)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+              employeeGroups.map((group) => {
+                const isExpanded = expandedEmployees.has(group.employeeId);
+                return (
+                  <Fragment key={group.employeeId}>
+                    <tr
+                      className={`employee-row ${isExpanded ? 'expanded' : ''}`}
+                      onClick={() => toggleEmployee(group.employeeId)}
+                    >
+                      <td className="expand-col">
+                        <span className="expand-icon">{isExpanded ? '▾' : '▸'}</span>
+                      </td>
+                      <td>{getEmployeeName(group.employeeId)}</td>
+                      <td>{group.records.length}</td>
+                      <td>₹{group.total.toFixed(2)}</td>
+                      <td>₹{group.pending.toFixed(2)}</td>
+                      <td>{formatDate(group.records[0].date)}</td>
+                    </tr>
+                    {isExpanded && (
+                      <tr className="details-row">
+                        <td colSpan={6}>
+                          <table className="advance-details-table">
+                            <thead>
+                              <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Remark</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {group.records.map((advance) => (
+                                <tr key={advance.id}>
+                                  <td>{formatDate(advance.date)}</td>
+                                  <td>₹{parseFloat(advance.amount.toString()).toFixed(2)}</td>
+                                  <td>{advance.remark || '-'}</td>
+                                  <td>
+                                    <span className={`status-badge ${getStatusBadgeClass(advance.status)}`}>
+                                      {advance.status}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <div className="action-buttons">
+                                      {advance.status === 'pending' && (
+                                        <button
+                                          className="btn-cancel"
+                                          onClick={() => handleUpdateStatus(advance.id!, 'cancelled')}
+                                        >
+                                          Cancel
+                                        </button>
+                                      )}
+                                      <button
+                                        className="btn-delete"
+                                        onClick={() => handleDelete(advance.id!)}
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })
             )}
           </tbody>
         </table>

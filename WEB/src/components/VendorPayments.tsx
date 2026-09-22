@@ -2,6 +2,7 @@ import { useState, useEffect, Fragment } from 'react';
 import { apiClient } from '../api/client';
 import { formatDate } from '../utils/formatDate';
 import './VendorPayments.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 /**
  * Paying plasma vendors: the mirror of client settlements, for money going out.
@@ -244,7 +245,7 @@ export default function VendorPayments() {
 
   const handleDelete = async (id: number) => {
     if (
-      !confirm('Undo this payment? The vendor balance and any jobs it closed will be restored.')
+      !(await confirmDialog('Undo this payment? The vendor balance and any jobs it closed will be restored.', { confirmLabel: 'Undo', danger: true }))
     )
       return;
     try {
@@ -254,7 +255,7 @@ export default function VendorPayments() {
       await loadBalances();
     } catch (error: any) {
       console.error('Failed to delete vendor payment:', error);
-      alert(error.message || 'Failed to delete the payment. Please try again.');
+      notify.error(error.message || 'Failed to delete the payment. Please try again.');
     }
   };
 

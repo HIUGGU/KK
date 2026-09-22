@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import { formatDateTime } from '../utils/formatDate';
 import './RawMaterials.css';
+import { notify, confirmDialog, chooseDialog } from '../utils/notify';
 
 interface Vendor {
   id?: number;
@@ -287,11 +288,11 @@ export default function RawMaterials() {
     e.preventDefault();
 
     if (!header.vendor_id) {
-      alert('Please select a vendor.');
+      notify.error('Please select a vendor.');
       return;
     }
     if (rows.some((row) => !row.point_id || !row.size_id || row.weight <= 0 || row.rate_per_kg <= 0)) {
-      alert('Every line needs a point, a size, a weight and a rate.');
+      notify.error('Every line needs a point, a size, a weight and a rate.');
       return;
     }
 
@@ -317,18 +318,18 @@ export default function RawMaterials() {
       loadEntries();
     } catch (error: any) {
       console.error('Failed to save entry:', error);
-      alert(error.message || 'Failed to save. Please try again.');
+      notify.error(error.message || 'Failed to save. Please try again.');
     }
   };
 
   const handleDeleteEntry = async (entry: Entry) => {
-    if (!confirm(`Delete entry ${entry.entry_number} and all ${entry.line_count} of its lines?`)) return;
+    if (!(await confirmDialog(`Delete entry ${entry.entry_number} and all ${entry.line_count} of its lines?`, { confirmLabel: 'Delete', danger: true }))) return;
     try {
       await apiClient.deleteRawMaterialEntry(entry.id!);
       loadEntries();
     } catch (error: any) {
       console.error('Failed to delete entry:', error);
-      alert(error.message || 'Failed to delete entry.');
+      notify.error(error.message || 'Failed to delete entry.');
     }
   };
 
@@ -337,13 +338,13 @@ export default function RawMaterials() {
     const message = last
       ? `This is the only line in ${entry.entry_number}. Deleting it removes the whole entry. Continue?`
       : `Delete the ${item.point_name}/${item.size_name} line?`;
-    if (!confirm(message)) return;
+    if (!(await confirmDialog(message, { confirmLabel: 'Delete', danger: true }))) return;
     try {
       await apiClient.deleteRawMaterialItem(item.id!);
       loadEntries();
     } catch (error: any) {
       console.error('Failed to delete line:', error);
-      alert(error.message || 'Failed to delete line.');
+      notify.error(error.message || 'Failed to delete line.');
     }
   };
 
@@ -355,7 +356,7 @@ export default function RawMaterials() {
       setShowStatusModal(true);
     } catch (error: any) {
       console.error('Failed to load status history:', error);
-      alert(error.message || 'Failed to load status history.');
+      notify.error(error.message || 'Failed to load status history.');
     }
   };
 
@@ -363,7 +364,7 @@ export default function RawMaterials() {
     e.preventDefault();
     if (!statusItem?.id) return;
     if (statusForm.status === statusItem.status) {
-      alert('This line is already in that status. Pick a different one.');
+      notify.error('This line is already in that status. Pick a different one.');
       return;
     }
     try {
@@ -378,27 +379,23 @@ export default function RawMaterials() {
       loadEntries();
     } catch (error: any) {
       console.error('Failed to update status:', error);
-      alert(error.message || 'Failed to update status.');
+      notify.error(error.message || 'Failed to update status.');
     }
   };
 
   const handleEntryStatus = async (entry: Entry) => {
-    const choice = prompt(
-      `Move all ${entry.line_count} lines of ${entry.entry_number} to which status?\n\n` +
-        STATUS_OPTIONS.map((o) => `${o.value} = ${o.label}`).join('\n'),
-      'in_use'
+    const choice = await chooseDialog(
+      `Move all ${entry.line_count} lines of ${entry.entry_number} to which status?`,
+      STATUS_OPTIONS,
+      { title: 'Change status', confirmLabel: 'Move', defaultValue: 'in_use' }
     );
     if (!choice) return;
-    if (!STATUS_OPTIONS.some((o) => o.value === choice)) {
-      alert(`"${choice}" is not a valid status.`);
-      return;
-    }
     try {
       await apiClient.updateRawMaterialEntryStatus(entry.id!, choice);
       loadEntries();
     } catch (error: any) {
       console.error('Failed to update entry status:', error);
-      alert(error.message || 'Failed to update status.');
+      notify.error(error.message || 'Failed to update status.');
     }
   };
 

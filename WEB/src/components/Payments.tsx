@@ -2,6 +2,7 @@ import { useState, useEffect, Fragment } from 'react';
 import { apiClient } from '../api/client';
 import { Settlement, SettlementGroupDetail, groupSettlements, groupEvents, groupTotals } from './SettlementDetail';
 import './Payments.css';
+import { notify, confirmDialog } from '../utils/notify';
 
 interface Client {
   id: number;
@@ -122,13 +123,13 @@ export default function Payments() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Undo this payment? The client balance will be restored to what it was before.')) return;
+    if (!(await confirmDialog('Undo this payment? The client balance will be restored to what it was before.', { confirmLabel: 'Undo', danger: true }))) return;
     try {
       await apiClient.deleteSettlement(id);
       loadSettlements();
     } catch (error: any) {
       console.error('Failed to undo payment:', error);
-      alert(error.message || 'Failed to undo payment. Only the client\'s most recent settlement can be undone.');
+      notify.error(error.message || 'Failed to undo payment. Only the client\'s most recent settlement can be undone.');
     }
   };
 
