@@ -60,34 +60,49 @@ export function buildRateLookup(revisions: Revision[], fallback: number) {
   };
 }
 
+type RatedEmployee = { id: number; baseSalary: any; isConstantSalary: boolean };
+
 export class SalaryRevisionService {
-  async getRateLookup(employeeId: number, fallback: number) {
-    const revisions = await prisma.salaryRevision.findMany({ where: { employeeId } });
-    return buildRateLookup(revisions, fallback);
+  /**
+   * Salary in force on any day. A constant salary is never increased or
+   * decreased, so it is always the employee's fixed figure; only daily wages
+   * have a revision history.
+   */
+  async getRateLookup(employee: RatedEmployee) {
+    if (employee.isConstantSalary) {
+      const fixed = Number(employee.baseSalary);
+      return () => fixed;
+    }
+    const revisions = await prisma.salaryRevision.findMany({ where: { employeeId: employee.id } });
+    return buildRateLookup(revisions, Number(employee.baseSalary));
   }
 
   /** Rate lookups for several employees in one query, keyed by employee id. */
-  async getRateLookups(employees: { id: number; baseSalary: any }[]) {
+  async getRateLookups(employees: RatedEmployee[]) {
     const revisions = await prisma.salaryRevision.findMany({
-      where: { employeeId: { in: employees.map((e) => e.id) } },
+      where: { employeeId: { in: employees.filter((e) => !e.isConstantSalary).map((e) => e.id) } },
     });
     const lookups = new Map<number, (day: string) => number>();
     for (const e of employees) {
+      const fixed = Number(e.baseSalary);
       lookups.set(
         e.id,
-        buildRateLookup(revisions.filter((r) => r.employeeId === e.id), Number(e.baseSalary))
+        e.isConstantSalary
+          ? () => fixed
+          : buildRateLookup(revisions.filter((r) => r.employeeId === e.id), fixed)
       );
     }
     return lookups;
   }
 
-  /** Opening entry when an employee is created: their salary from the hire date. */
+  /** Opening entry when a daily-wage employee is created: their wage from the hire date. */
   async recordOpening(employee: {
     id: number;
     baseSalary: any;
     isConstantSalary: boolean;
     hireDate: Date;
   }) {
+    if (employee.isConstantSalary) return;
     await prisma.salaryRevision.create({
       data: {
         employeeId: employee.id,
@@ -103,8 +118,8 @@ export class SalaryRevisionService {
   /**
    * Record an increase or decrease effective from `effectiveDate`, then bring
    * everything priced off the salary back in line: Employee.baseSalary becomes
-   * whatever is in force today, and daily-wage attendance from the effective
-   * date on is re-priced at the rate in force on each day.
+   * whatever is in force today, and attendance from the effective date on is
+   * re-priced at the wage in force on each day. Daily wages only.
    */
   async addRevision(
     employeeId: number,
@@ -126,6 +141,12 @@ export class SalaryRevisionService {
     const employee = await prisma.employee.findUnique({ where: { id: employeeId } });
     if (!employee) {
       throw new Error('Employee not found');
+    }
+    if (employee.isConstantSalary) {
+      throw new Error(
+        `${employee.name} is on a constant salary, which is not increased or decreased. ` +
+          'If the amount was entered wrongly, correct it on the Employees page.'
+      );
     }
 
     const revision = await prisma.$transaction(async (tx) => {
@@ -166,17 +187,15 @@ export class SalaryRevisionService {
         data: { baseSalary: rateOn(todayKey()) },
       });
 
-      if (!employee.isConstantSalary) {
-        const affected = await tx.attendance.findMany({
-          where: { employeeId, date: { gte: toDateOnly(effectiveDate) } },
-        });
-        for (const a of affected) {
-          const rate = rateOn(dayKey(a.date));
-          const dailySalary =
-            a.attendanceType === 'full_day' ? rate : a.attendanceType === 'half_day' ? rate / 2 : 0;
-          if (Number(a.dailySalary) !== dailySalary) {
-            await tx.attendance.update({ where: { id: a.id }, data: { dailySalary } });
-          }
+      const affected = await tx.attendance.findMany({
+        where: { employeeId, date: { gte: toDateOnly(effectiveDate) } },
+      });
+      for (const a of affected) {
+        const rate = rateOn(dayKey(a.date));
+        const dailySalary =
+          a.attendanceType === 'full_day' ? rate : a.attendanceType === 'half_day' ? rate / 2 : 0;
+        if (Number(a.dailySalary) !== dailySalary) {
+          await tx.attendance.update({ where: { id: a.id }, data: { dailySalary } });
         }
       }
 

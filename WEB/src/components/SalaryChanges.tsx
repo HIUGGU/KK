@@ -127,6 +127,8 @@ export default function SalaryChanges() {
   );
 
   const employee = employees.find((e) => e.id === selectedEmployee);
+  // A constant salary is never increased or decreased, so only daily wages have changes.
+  const dailyWageEmployees = employees.filter((e) => !e.is_constant_salary);
   const employeeRevisions = revisions.filter((r) => r.employee_id === selectedEmployee);
   const changes = revisions.filter(
     (r) => (!selectedEmployee || r.employee_id === selectedEmployee) && r.change !== null
@@ -160,7 +162,7 @@ export default function SalaryChanges() {
 
   const openModal = () => {
     setFormData({
-      employeeId: selectedEmployee || 0,
+      employeeId: employee && !employee.is_constant_salary ? employee.id : 0,
       newSalary: '',
       effectiveDate: todayKey(),
       reason: '',
@@ -216,7 +218,12 @@ export default function SalaryChanges() {
             onChange={(e) => setSelectedEmployee(e.target.value ? parseInt(e.target.value) : null)}
           >
             <option value="">All Employees</option>
-            {employees.map((emp) => (
+            {employee?.is_constant_salary && (
+              <option value={employee.id}>
+                {employee.employee_id} - {employee.name} (constant salary)
+              </option>
+            )}
+            {dailyWageEmployees.map((emp) => (
               <option key={emp.id} value={emp.id}>
                 {emp.employee_id} - {emp.name}
               </option>
@@ -233,119 +240,139 @@ export default function SalaryChanges() {
         </div>
       </div>
 
-      <div className="salary-changes-summary">
-        {employee ? (
-          <>
-            <div className="summary-card">
-              <h3>Current Salary</h3>
-              <p className="summary-value">
-                {money(employee.base_salary)}
-                <span className="summary-unit">{unit(employee.is_constant_salary)}</span>
-              </p>
-            </div>
-            <div className="summary-card">
-              <h3>Starting Salary</h3>
-              <p className="summary-value">
-                {money(startSalary)}
-                <span className="summary-unit">{unit(employee.is_constant_salary)}</span>
-              </p>
-              {opening && <p className="summary-sub">from {formatDate(opening.effective_date)}</p>}
-            </div>
-            <div className="summary-card">
-              <h3>Total Change</h3>
-              <p className={`summary-value ${netChange > 0 ? 'text-increase' : netChange < 0 ? 'text-decrease' : ''}`}>
-                {netChange > 0 ? '+' : netChange < 0 ? '−' : ''}
-                {money(Math.abs(netChange))}
-              </p>
-              {netPercent !== null && netChange !== 0 && (
-                <p className="summary-sub">
-                  {netChange > 0 ? '+' : '−'}
-                  {Math.abs(netPercent)}% since start
+      {employee?.is_constant_salary ? (
+        <div className="constant-salary-notice">
+          <span className="pay-type-badge constant">Constant salary - fixed monthly</span>
+          <p>
+            <strong>{employee.name}</strong> gets a fixed salary of{' '}
+            <strong>{money(employee.base_salary)}/month</strong>. A constant salary is not increased or
+            decreased, so there is no salary change history for this employee.
+          </p>
+          <p className="muted">
+            If the amount was entered wrongly, correct it with Edit on the Employees page.
+          </p>
+        </div>
+      ) : (
+        <>
+        <div className="salary-changes-summary">
+          {employee ? (
+            <>
+              <div className="summary-card">
+                <h3>Current Salary</h3>
+                <p className="summary-value">
+                  {money(employee.base_salary)}
+                  <span className="summary-unit">{unit(employee.is_constant_salary)}</span>
                 </p>
-              )}
-            </div>
-            <div className="summary-card">
-              <h3>Increases / Decreases</h3>
-              <p className="summary-value">
-                <span className="text-increase">{increases}</span>
-                {' / '}
-                <span className="text-decrease">{decreases}</span>
-              </p>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="summary-card">
-              <h3>Increases</h3>
-              <p className="summary-value text-increase">{increases}</p>
-            </div>
-            <div className="summary-card">
-              <h3>Decreases</h3>
-              <p className="summary-value text-decrease">{decreases}</p>
-            </div>
-            <div className="summary-card">
-              <h3>Employees With Changes</h3>
-              <p className="summary-value">{new Set(changes.map((r) => r.employee_id)).size}</p>
-            </div>
-          </>
-        )}
-      </div>
+                <span className={`pay-type-badge ${employee.is_constant_salary ? 'constant' : 'daily'}`}>
+                  {employee.is_constant_salary ? 'Constant salary - fixed monthly' : 'Daily wage - paid per day worked'}
+                </span>
+              </div>
+              <div className="summary-card">
+                <h3>Starting Salary</h3>
+                <p className="summary-value">
+                  {money(startSalary)}
+                  <span className="summary-unit">{unit(employee.is_constant_salary)}</span>
+                </p>
+                {opening && <p className="summary-sub">from {formatDate(opening.effective_date)}</p>}
+              </div>
+              <div className="summary-card">
+                <h3>Total Change</h3>
+                <p className={`summary-value ${netChange > 0 ? 'text-increase' : netChange < 0 ? 'text-decrease' : ''}`}>
+                  {netChange > 0 ? '+' : netChange < 0 ? '−' : ''}
+                  {money(Math.abs(netChange))}
+                </p>
+                {netPercent !== null && netChange !== 0 && (
+                  <p className="summary-sub">
+                    {netChange > 0 ? '+' : '−'}
+                    {Math.abs(netPercent)}% since start
+                  </p>
+                )}
+              </div>
+              <div className="summary-card">
+                <h3>Increases / Decreases</h3>
+                <p className="summary-value">
+                  <span className="text-increase">{increases}</span>
+                  {' / '}
+                  <span className="text-decrease">{decreases}</span>
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="summary-card">
+                <h3>Increases</h3>
+                <p className="summary-value text-increase">{increases}</p>
+              </div>
+              <div className="summary-card">
+                <h3>Decreases</h3>
+                <p className="summary-value text-decrease">{decreases}</p>
+              </div>
+              <div className="summary-card">
+                <h3>Employees With Changes</h3>
+                <p className="summary-value">{new Set(changes.map((r) => r.employee_id)).size}</p>
+              </div>
+            </>
+          )}
+        </div>
 
-      <p className="salary-changes-hint">
-        Every increase or decrease is kept here and never edited or removed. Each day is paid at the
-        salary in force on that day, so a back-dated change re-prices earnings from its effective date.
-        To fix a mistake, record a new change with the same effective date - the latest entry wins.
-      </p>
+        <p className="salary-changes-hint">
+          Daily wage increases and decreases only - a constant (fixed monthly) salary is not changed, so
+        those employees are not listed. Every change is kept here and never edited or removed. Each day is paid at the
+          salary in force on that day, so a back-dated change re-prices earnings from its effective date.
+          To fix a mistake, record a new change with the same effective date - the latest entry wins.
+        </p>
 
-      <div className="table-container">
-        <table className="employees-table salary-changes-table">
-          <thead>
-            <tr>
-              <th>Effective From</th>
-              {!selectedEmployee && <th>Employee</th>}
-              <th>Old Salary</th>
-              <th>New Salary</th>
-              <th>Change</th>
-              <th>Reason</th>
-              <th>Type</th>
-              <th>Recorded</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visible.length === 0 ? (
+        <div className="table-container">
+          <table className="employees-table salary-changes-table">
+            <thead>
               <tr>
-                <td colSpan={selectedEmployee ? 7 : 8} style={{ textAlign: 'center', padding: '40px' }}>
-                  No salary changes found.
-                </td>
+                <th>Effective From</th>
+                {!selectedEmployee && <th>Employee</th>}
+                <th>Old Salary</th>
+                <th>New Salary</th>
+                <th>Change</th>
+                <th>Reason</th>
+                <th>Type</th>
+                <th>Recorded</th>
               </tr>
-            ) : (
-              visible.map((r) => (
-                <tr key={r.id}>
-                  <td className="nowrap">{formatDate(r.effective_date)}</td>
-                  {!selectedEmployee && (
-                    <td>
-                      <button className="link-button" onClick={() => setSelectedEmployee(r.employee_id)}>
-                        {r.employee_code} - {r.employee_name}
-                      </button>
-                    </td>
-                  )}
-                  <td className="nowrap">{r.old_salary === null ? '-' : money(r.old_salary)}</td>
-                  <td className="nowrap">
-                    <strong>{money(r.new_salary)}</strong>
-                    <span className="salary-unit">{unit(r.is_constant_salary)}</span>
+            </thead>
+            <tbody>
+              {visible.length === 0 ? (
+                <tr>
+                  <td colSpan={selectedEmployee ? 7 : 8} style={{ textAlign: 'center', padding: '40px' }}>
+                    No salary changes found.
                   </td>
-                  <td className="nowrap">
-                    <ChangeBadge change={r.change} percent={r.change_percent} />
-                  </td>
-                  <td>{r.reason || '-'}</td>
-                  <td className="muted">{SOURCE_LABELS[r.source] || r.source}</td>
-                  <td className="muted nowrap">{formatDateTime(r.changed_at)}</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                visible.map((r) => (
+                  <tr key={r.id}>
+                    <td className="nowrap">{formatDate(r.effective_date)}</td>
+                    {!selectedEmployee && (
+                      <td>
+                        <button className="link-button" onClick={() => setSelectedEmployee(r.employee_id)}>
+                          {r.employee_code} - {r.employee_name}
+                        </button>
+                      </td>
+                    )}
+                    <td className="nowrap">{r.old_salary === null ? '-' : money(r.old_salary)}</td>
+                    <td className="nowrap">
+                      <strong>{money(r.new_salary)}</strong>
+                      <span className="salary-unit">{unit(r.is_constant_salary)}</span>
+                    </td>
+                    <td className="nowrap">
+                      <ChangeBadge change={r.change} percent={r.change_percent} />
+                    </td>
+                    <td>{r.reason || '-'}</td>
+                    <td className="muted">{SOURCE_LABELS[r.source] || r.source}</td>
+                    <td className="muted nowrap">{formatDateTime(r.changed_at)}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        </>
+      )}
 
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
@@ -360,7 +387,7 @@ export default function SalaryChanges() {
                   required
                 >
                   <option value={0}>Select Employee</option>
-                  {employees.map((emp) => (
+                  {dailyWageEmployees.map((emp) => (
                     <option key={emp.id} value={emp.id}>
                       {emp.employee_id} - {emp.name}
                     </option>

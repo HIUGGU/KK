@@ -155,9 +155,11 @@ export default function Employees() {
                     <button className="btn-edit" onClick={() => handleEdit(emp)}>
                       Edit
                     </button>
-                    <button className="btn-history" onClick={() => navigate(`/salary-changes?employee=${emp.id}`)}>
-                      Salary History
-                    </button>
+                    {!emp.is_constant_salary && (
+                      <button className="btn-history" onClick={() => navigate(`/salary-changes?employee=${emp.id}`)}>
+                        Salary History
+                      </button>
+                    )}
                     <button className="btn-delete" onClick={() => handleDelete(emp.id!)}>
                       Delete
                     </button>
@@ -239,17 +241,20 @@ export default function Employees() {
                     value={formData.base_salary}
                     onChange={(e) => setFormData({ ...formData, base_salary: parseFloat(e.target.value) || 0 })}
                     required
-                    readOnly={!!editingEmployee}
-                    className={editingEmployee ? 'input-readonly' : undefined}
+                    readOnly={!!editingEmployee && !formData.is_constant_salary}
+                    className={editingEmployee && !formData.is_constant_salary ? 'input-readonly' : undefined}
                     placeholder={formData.is_constant_salary ? "Enter monthly salary" : "Enter daily salary"}
                   />
-                  {editingEmployee && (
+                  {editingEmployee && formData.is_constant_salary && (
+                    <span className="field-hint">Fixed salary - edit only to correct a wrong amount.</span>
+                  )}
+                  {editingEmployee && !formData.is_constant_salary && (
                     <button
                       type="button"
                       className="link-button"
                       onClick={() => navigate(`/salary-changes?employee=${editingEmployee.id}`)}
                     >
-                      Increase / decrease salary →
+                      Increase / decrease daily wage →
                     </button>
                   )}
                 </div>

@@ -33,7 +33,7 @@ export class AttendanceService {
     // For constant salary employees, don't calculate daily salary (set to 0)
     // baseSalary is now stored as daily salary, not monthly. The day is priced at
     // the salary in force on it, so re-marking an old day never picks up a later raise.
-    const rateOn = await salaryRevisionService.getRateLookup(employeeId, Number(employee.baseSalary));
+    const rateOn = await salaryRevisionService.getRateLookup(employee);
     const baseDailySalary = rateOn(dayKey(attendanceDate));
     
     let dailySalary = 0;

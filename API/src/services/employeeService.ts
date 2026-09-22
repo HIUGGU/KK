@@ -103,14 +103,25 @@ export class EmployeeService {
     if (employee.hire_date) updateData.hireDate = new Date(employee.hire_date);
     if (employee.status) updateData.status = employee.status;
 
+    // A constant salary is never increased or decreased, so editing it here is a
+    // correction of the fixed amount and simply overwrites it.
+    const isConstant =
+      employee.is_constant_salary ??
+      (await prisma.employee.findUnique({ where: { id }, select: { isConstantSalary: true } }))
+        ?.isConstantSalary;
+    if (isConstant && employee.base_salary !== undefined) {
+      updateData.baseSalary = employee.base_salary;
+    }
+
     let updated = await prisma.employee.update({
       where: { id },
       data: updateData,
     });
 
-    // A salary change is never a plain overwrite: it goes into the revision
+    // A daily wage change is never a plain overwrite: it goes into the revision
     // history, effective today. Back-dated changes use the salary revisions API.
     if (
+      !updated.isConstantSalary &&
       employee.base_salary !== undefined &&
       Number(employee.base_salary) !== Number(updated.baseSalary)
     ) {

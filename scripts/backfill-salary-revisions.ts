@@ -1,9 +1,10 @@
 /**
  * One-time backfill: salary increases and decreases are now kept in
- * salary_revisions, and every day is paid at the salary in force on it. Existing
- * employees have no history, so each gets an opening entry of their current
- * salary effective from their hire date - past periods keep being paid as they
- * were until older changes are entered on the Salary Changes page.
+ * salary_revisions, and every day is paid at the wage in force on it. Existing
+ * daily-wage employees have no history, so each gets an opening entry of their
+ * current wage effective from their hire date - past periods keep being paid as
+ * they were until older changes are entered on the Salary Changes page. A
+ * constant salary is never increased or decreased, so it gets no history.
  *
  * Run with: npx ts-node --transpile-only -P API/tsconfig.json scripts/backfill-salary-revisions.ts
  * Safe to re-run: employees that already have a revision are skipped.
@@ -26,7 +27,7 @@ async function main() {
   let skipped = 0;
 
   for (const employee of employees) {
-    if (employee._count.salaryRevisions > 0) {
+    if (employee.isConstantSalary || employee._count.salaryRevisions > 0) {
       skipped += 1;
       continue;
     }
@@ -44,7 +45,7 @@ async function main() {
     created += 1;
   }
 
-  console.log(`Opening salary entries created: ${created}, skipped (already had history): ${skipped}`);
+  console.log(`Opening salary entries created: ${created}, skipped (constant salary or already had history): ${skipped}`);
 }
 
 main()

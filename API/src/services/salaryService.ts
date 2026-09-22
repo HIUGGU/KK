@@ -63,7 +63,7 @@ export class SalaryService {
     // The monthly figure in force at month end, and for a fixed salary, each
     // calendar day charged at the rate in force that day so a mid-month
     // increase or decrease is split between the two rates.
-    const rateOn = await salaryRevisionService.getRateLookup(employeeId, Number(employee.baseSalary));
+    const rateOn = await salaryRevisionService.getRateLookup(employee);
     const daysInMonth = endDate.getDate();
     const baseSalary = rateOn(dayKey(new Date(Date.UTC(year, month - 1, daysInMonth))));
 
