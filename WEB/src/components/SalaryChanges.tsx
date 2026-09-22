@@ -176,8 +176,12 @@ export default function SalaryChanges() {
       alert('Please select an employee');
       return;
     }
-    if (!hasNewSalary || newSalaryNum < 0) {
+    if (!hasNewSalary) {
       alert('Please enter the new salary');
+      return;
+    }
+    if (!(newSalaryNum > 0)) {
+      alert('New salary must be more than zero');
       return;
     }
     if (formChange === 0 && !confirm('The new salary is the same as the current one. Record it anyway?')) {
@@ -414,7 +418,7 @@ export default function SalaryChanges() {
                   <input
                     type="number"
                     step="0.01"
-                    min="0"
+                    min="0.01"
                     value={formData.newSalary}
                     onChange={(e) => setFormData({ ...formData, newSalary: e.target.value })}
                     required

@@ -128,8 +128,8 @@ export class SalaryRevisionService {
     reason?: string,
     source = 'revision_added'
   ): Promise<SalaryRevisionEntry> {
-    if (!(newSalary >= 0) || !Number.isFinite(newSalary)) {
-      throw new Error('New salary must be zero or more');
+    if (!(newSalary > 0) || !Number.isFinite(newSalary)) {
+      throw new Error('New salary must be more than zero');
     }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(effectiveDate || '')) {
       throw new Error('Effective date is required (YYYY-MM-DD)');
