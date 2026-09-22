@@ -50,9 +50,17 @@ export default function Employees() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // A daily wage is read-only when editing (it changes through Salary Changes),
+    // so it is only checked and sent when it can actually be set here.
+    const salaryEditable = !editingEmployee || formData.is_constant_salary;
+    if (salaryEditable && !(formData.base_salary > 0)) {
+      alert('Salary must be more than zero');
+      return;
+    }
     try {
       if (editingEmployee?.id) {
-        await apiClient.updateEmployee(editingEmployee.id, formData);
+        const { base_salary, ...rest } = formData;
+        await apiClient.updateEmployee(editingEmployee.id, salaryEditable ? formData : rest);
       } else {
         await apiClient.createEmployee(formData);
       }
@@ -238,6 +246,7 @@ export default function Employees() {
                   <input
                     type="number"
                     step="0.01"
+                    min="0.01"
                     value={formData.base_salary}
                     onChange={(e) => setFormData({ ...formData, base_salary: parseFloat(e.target.value) || 0 })}
                     required

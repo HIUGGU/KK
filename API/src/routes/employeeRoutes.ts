@@ -61,7 +61,19 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// A salary of zero (or less) is never valid. `required` says whether a missing
+// salary is an error too (on create) or just means "unchanged" (on update).
+function salaryError(baseSalary: unknown, required: boolean): string | null {
+  if (baseSalary === undefined || baseSalary === null || baseSalary === '') {
+    return required ? 'Salary is required' : null;
+  }
+  const salary = Number(baseSalary);
+  return Number.isFinite(salary) && salary > 0 ? null : 'Salary must be more than zero';
+}
+
 router.post('/', async (req, res) => {
+  const invalid = salaryError(req.body.base_salary, true);
+  if (invalid) return res.status(400).json({ error: invalid });
   try {
     const employee = await employeeService.createEmployee(req.body);
     res.status(201).json(employee);
@@ -71,6 +83,8 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
+  const invalid = salaryError(req.body.base_salary, false);
+  if (invalid) return res.status(400).json({ error: invalid });
   try {
     const employee = await employeeService.updateEmployee(parseInt(req.params.id), req.body);
     if (employee) {
