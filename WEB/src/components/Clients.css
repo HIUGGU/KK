@@ -1,0 +1,136 @@
+.clients {
+  width: 100%;
+}
+
+.clients-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.clients-table thead {
+  background: #f8f9fa;
+}
+
+.clients-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.clients-table td {
+  padding: 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.clients-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+
+
+
+/* Client-specific product pricing */
+.btn-price {
+  background: #16a085;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.btn-price:hover {
+  background: #138d75;
+}
+
+.btn-rates {
+  background: #2980b9;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.btn-rates:hover {
+  background: #21618c;
+}
+
+.price-hint {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 20px;
+}
+
+.client-price-form {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 30px;
+}
+
+.client-price-form h4,
+.client-price-list h4 {
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.price-form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.client-price-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.client-price-table thead {
+  background: #f8f9fa;
+}
+
+.client-price-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.client-price-table td {
+  padding: 12px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.client-price-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.client-price-table tr.active-price {
+  background: #e8f5e9;
+}
+
+.client-price-table tr.active-price:hover {
+  background: #d9efdb;
+}
+
+.current-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #4caf50;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}

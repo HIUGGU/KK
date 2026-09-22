@@ -1,0 +1,681 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("admin")
+}
+
+model Employee {
+  id              Int       @id @default(autoincrement())
+  employeeId      String    @unique @map("employee_id")
+  name            String
+  email           String?   @unique
+  phone           String?
+  department      String?
+  position        String?
+  baseSalary      Decimal   @default(0) @map("base_salary") @db.Decimal(10, 2)
+  isConstantSalary Boolean  @default(false) @map("is_constant_salary")
+  hireDate        DateTime  @map("hire_date") @db.Date
+  status          String    @default("active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  attendance      Attendance[]
+  salaryRecords   SalaryRecord[]
+  advances        Advance[]
+  salaryPayments  SalaryPayment[]
+  salaryRevisions SalaryRevision[]
+
+  @@map("employees")
+}
+
+model Attendance {
+  id           Int       @id @default(autoincrement())
+  employeeId   Int       @map("employee_id")
+  date         DateTime  @db.Date
+  attendanceType String  @default("full_day") @map("attendance_type") // full_day, half_day, absent
+  dailySalary  Decimal   @default(0) @map("daily_salary") @db.Decimal(10, 2)
+  notes        String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  employee     Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, date])
+  @@map("attendance")
+}
+
+model SalaryRecord {
+  id           Int      @id @default(autoincrement())
+  employeeId   Int      @map("employee_id")
+  month        Int
+  year         Int
+  baseSalary   Decimal  @map("base_salary") @db.Decimal(10, 2)
+  daysPresent  Int      @default(0) @map("days_present")
+  daysAbsent   Int      @default(0) @map("days_absent")
+  totalHours   Decimal  @default(0) @map("total_hours") @db.Decimal(10, 2)
+  grossSalary  Decimal  @map("gross_salary") @db.Decimal(10, 2)
+  extraAmount  Decimal  @default(0) @map("extra_amount") @db.Decimal(10, 2)
+  totalAdvances Decimal @default(0) @map("total_advances") @db.Decimal(10, 2)
+  deductions   Decimal  @default(0) @db.Decimal(10, 2)
+  netSalary    Decimal  @map("net_salary") @db.Decimal(10, 2)
+  payoutDate   DateTime? @map("payout_date") @db.Date
+  status       String   @default("not_paid") // not_paid, paid
+  calculatedAt DateTime @default(now()) @map("calculated_at")
+
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, month, year])
+  @@map("salary_records")
+}
+
+// A single hand-over of cash to an employee. Salary is not paid on a monthly
+// cycle here: payouts happen on weekends or whenever, for whatever amount, so
+// each one is its own row and what is still owed is earnings minus advances
+// minus the sum of these.
+model SalaryPayment {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int      @map("employee_id")
+  amount      Decimal  @db.Decimal(10, 2)
+  paymentDate DateTime @map("payment_date") @db.Date
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId, paymentDate])
+  @@map("salary_payments")
+}
+
+/// Append-only history of every increase or decrease to an employee's salary.
+/// Employee.baseSalary stays the figure in force today; this records how it got
+/// there and from which date each figure applies, so earlier days are paid at
+/// the rate that was in force then. Rows are never updated or deleted - a
+/// mistake is corrected by a newer revision with the same effective date.
+model SalaryRevision {
+  id               Int      @id @default(autoincrement())
+  employeeId       Int      @map("employee_id")
+  /// null for the opening entry (hire or backfill).
+  oldSalary        Decimal? @map("old_salary") @db.Decimal(10, 2)
+  newSalary        Decimal  @map("new_salary") @db.Decimal(10, 2)
+  /// Whether newSalary is a monthly figure (true) or a daily wage (false).
+  isConstantSalary Boolean  @default(false) @map("is_constant_salary")
+  effectiveDate    DateTime @map("effective_date") @db.Date
+  reason           String?
+  /// employee_created, employee_edited, revision_added or backfill
+  source           String
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  employee         Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId, effectiveDate])
+  @@map("salary_revisions")
+}
+
+model Advance {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int      @map("employee_id")
+  amount      Decimal  @db.Decimal(10, 2)
+  remark      String?
+  date        DateTime @db.Date
+  status      String   @default("pending") // pending, deducted, cancelled
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("advances")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  unitPrice   Decimal  @map("unit_price") @db.Decimal(10, 2) // Current price (for backward compatibility)
+  unit        String   @default("piece") // piece, kg, set, etc.
+  status      String   @default("active") // active, inactive
+  length      Decimal? @db.Decimal(10, 2) // physical size of the product
+  breadth     Decimal? @db.Decimal(10, 2)
+  /// Measured in `dimensionUnit`. Plasma vendors that bill by the inch charge on this.
+  height      Decimal? @db.Decimal(10, 2)
+  weight      Decimal? @db.Decimal(10, 2)
+  topSize     String?  @map("top_size") // free text: takes "12", "12x8" or "M"
+  bottomSize  String?  @map("bottom_size")
+  dimensionUnit String? @map("dimension_unit") // unit for length, breadth and the sizes
+  weightUnit  String?  @map("weight_unit")
+  // The raw material this product is made from. Optional: products created before
+  // these were added, and any that are not tied to a single point/size, have none.
+  pointId     Int?     @map("point_id")
+  sizeId      Int?     @map("size_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  point       MaterialPoint? @relation(fields: [pointId], references: [id], onDelete: Restrict)
+  size        MaterialSize?  @relation(fields: [sizeId], references: [id], onDelete: Restrict)
+  orderItems  OrderItem[]
+  rateHistory ProductRate[]
+  clientPrices ClientProductPrice[]
+  priceLogs   PriceLog[]
+  cuttingOutputs CuttingOutput[]
+  processRates ProcessRate[]
+  processItems ProcessJobItem[]
+
+  @@map("products")
+}
+
+model ProductRate {
+  id          Int      @id @default(autoincrement())
+  productId   Int      @map("product_id")
+  rate        Decimal  @db.Decimal(10, 2)
+  effectiveDate DateTime @map("effective_date") @db.Date
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, effectiveDate])
+  @@map("product_rates")
+}
+
+model ClientProductPrice {
+  id          Int      @id @default(autoincrement())
+  clientId    Int      @map("client_id")
+  productId   Int      @map("product_id")
+  price       Decimal  @db.Decimal(10, 2)
+  effectiveDate DateTime @map("effective_date") @db.Date
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, productId, effectiveDate])
+  @@map("client_product_prices")
+}
+
+/// Append-only audit trail of every product price change, both the standard
+/// rate and client-specific prices. Rows are never updated or deleted.
+model PriceLog {
+  id            Int       @id @default(autoincrement())
+  productId     Int       @map("product_id")
+  /// "standard" for the product's own rate, "client" for a client-specific price.
+  /// Kept explicit so a deleted client cannot make a client price look like a standard one.
+  scope         String    @default("standard")
+  clientId      Int?      @map("client_id")
+  /// Client name at the time of the change, so history survives the client being deleted.
+  clientName    String?   @map("client_name")
+  oldPrice      Decimal?  @map("old_price") @db.Decimal(10, 2)
+  newPrice      Decimal?  @map("new_price") @db.Decimal(10, 2)
+  /// created, updated or deleted
+  action        String
+  /// Where the change came from, e.g. product_created, product_edited, rate_added
+  source        String
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  notes         String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  client        Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([productId, createdAt])
+  @@map("price_logs")
+}
+
+model Client {
+  id          Int      @id @default(autoincrement())
+  name        String
+  companyName String? @map("company_name")
+  email       String?
+  phone       String?
+  address     String?
+  status      String   @default("active") // active, inactive
+  lastOrderNumber Int  @default(0) @map("last_order_number")
+  /// Amount owed that is no longer tied to any specific order: once a set of
+  /// orders is settled (even partially), those orders close out and whatever
+  /// wasn't covered moves here as a single running balance. Negative means
+  /// the client is in credit (they overpaid). Only Settlements move this.
+  outstandingBalance Decimal @default(0) @map("outstanding_balance") @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  orders      Order[]
+  settlements Settlement[]
+  productPrices ClientProductPrice[]
+  priceLogs   PriceLog[]
+
+  @@map("clients")
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  orderNumber String   @map("order_number")
+  clientId    Int      @map("client_id")
+  orderDate   DateTime @map("order_date") @db.Date
+  deliveryDate DateTime @map("delivery_date") @db.Date // Required - orders are only created on delivery
+  // An order only exists once the goods are delivered, so the status tracks payment instead.
+  // Binary: once an order is picked into a Settlement it closes ("paid") for good,
+  // even if that settlement didn't fully cover it - the shortfall becomes part of
+  // the client's outstandingBalance instead of staying attached to this order.
+  status      String   @default("not_paid") // not_paid, paid
+  notes       String?
+  totalAmount Decimal  @default(0) @map("total_amount") @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  items       OrderItem[]
+  settlementItems SettlementItem[]
+
+  @@unique([clientId, orderNumber])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          Int      @id @default(autoincrement())
+  orderId     Int      @map("order_id")
+  productId   Int      @map("product_id")
+  quantity    Decimal  @db.Decimal(10, 2)
+  unitPrice   Decimal  @map("unit_price") @db.Decimal(10, 2)
+  totalPrice  Decimal  @map("total_price") @db.Decimal(10, 2)
+
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
+
+model BankAccount {
+  id          Int      @id @default(autoincrement())
+  accountName String   @map("account_name")
+  accountNumber String @map("account_number")
+  bankName    String   @map("bank_name")
+  ifscCode    String?  @map("ifsc_code")
+  branch      String?
+  accountType String   @default("savings") @map("account_type") // savings, current
+  status      String   @default("active") // active, inactive
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  settlements Settlement[]
+  vendorPayments VendorPayment[]
+
+  @@map("bank_accounts")
+}
+
+/// A single settlement occasion with one client: whichever unpaid orders were
+/// picked close out for good, their total plus any balance already owed
+/// becomes the amount due this round, and money actually received (cash
+/// and/or bank) is deducted from it. Whatever's left is NOT reattached to any
+/// order - it carries forward as the client's outstandingBalance, so the
+/// client isn't required to clear everything in one go.
+model Settlement {
+  id            Int      @id @default(autoincrement())
+  clientId      Int      @map("client_id")
+  settlementDate DateTime @map("settlement_date") @db.Date
+  /// Client.outstandingBalance immediately before this settlement.
+  previousBalance Decimal @default(0) @map("previous_balance") @db.Decimal(10, 2)
+  /// Total of the orders picked in this settlement (0 if none - a pure balance payment).
+  orderTotal    Decimal  @default(0) @map("order_total") @db.Decimal(10, 2)
+  cashAmount    Decimal  @default(0) @map("cash_amount") @db.Decimal(10, 2)
+  bankAmount    Decimal  @default(0) @map("bank_amount") @db.Decimal(10, 2)
+  bankAccountId Int?     @map("bank_account_id")
+  /// cashAmount + bankAmount
+  totalAmount   Decimal  @map("total_amount") @db.Decimal(10, 2)
+  /// Client.outstandingBalance immediately after this settlement (previousBalance + orderTotal - totalAmount).
+  newBalance    Decimal  @default(0) @map("new_balance") @db.Decimal(10, 2)
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  bankAccount   BankAccount? @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
+  items         SettlementItem[]
+
+  @@map("settlements")
+}
+
+/// One order that was closed out as part of a Settlement.
+model SettlementItem {
+  id            Int      @id @default(autoincrement())
+  settlementId  Int      @map("settlement_id")
+  orderId       Int      @map("order_id")
+  /// The order's total_amount at the time it was closed, kept for history.
+  orderAmount   Decimal  @map("order_amount") @db.Decimal(10, 2)
+
+  settlement    Settlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  order         Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("settlement_items")
+}
+
+
+model Vendor {
+  id          Int      @id @default(autoincrement())
+  name        String
+  companyName String?  @map("company_name")
+  phone       String?
+  email       String?
+  address     String?
+  /// What this vendor is used for. Raw material suppliers and plasma job shops
+  /// are separate sets of people, kept apart so neither list offers the other's
+  /// vendors. Everyone on the books before plasma existed supplied material.
+  vendorType  String   @default("material") @map("vendor_type") // material, plasma
+  status      String   @default("active") // active, inactive
+  /// Money we still owe this vendor that is no longer tied to any specific job:
+  /// once a set of jobs is paid (even partially), those jobs close out and
+  /// whatever we did not cover moves here as a single running balance.
+  /// Negative means we are in credit with the vendor (we overpaid).
+  /// Only VendorPayments move this.
+  payableBalance Decimal @default(0) @map("payable_balance") @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  rawMaterialEntries RawMaterialEntry[]
+  rates              VendorRate[]
+  processRates       ProcessRate[]
+  processJobs        ProcessJob[]
+  payments           VendorPayment[]
+
+  @@map("vendors")
+}
+
+model MaterialPoint {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  status      String   @default("active") // active, inactive
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  rawMaterials RawMaterial[]
+  vendorRates  VendorRate[]
+  products     Product[]
+
+  @@map("material_points")
+}
+
+model MaterialSize {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  status      String   @default("active") // active, inactive
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  rawMaterials RawMaterial[]
+  products     Product[]
+
+  @@map("material_sizes")
+}
+
+model RawMaterialEntry {
+  id           Int      @id @default(autoincrement())
+  vendorId     Int      @map("vendor_id")
+  receivedDate DateTime @map("received_date") @db.Date
+  notes        String?
+  totalWeight  Decimal  @default(0) @map("total_weight") @db.Decimal(12, 3)
+  totalCost    Decimal  @default(0) @map("total_cost") @db.Decimal(12, 2)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  vendor       Vendor        @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  items        RawMaterial[]
+
+  @@map("raw_material_entries")
+}
+
+model RawMaterial {
+  id           Int      @id @default(autoincrement())
+  entryId      Int      @map("entry_id")
+  pointId      Int      @map("point_id")
+  sizeId       Int      @map("size_id")
+  weight       Decimal  @db.Decimal(10, 3) // in kg
+  ratePerKg    Decimal  @map("rate_per_kg") @db.Decimal(10, 2)
+  totalCost    Decimal  @map("total_cost") @db.Decimal(12, 2) // weight * rate_per_kg
+  status       String   @default("in_stock") // in_stock, in_use, consumed, returned
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  entry         RawMaterialEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  point         MaterialPoint    @relation(fields: [pointId], references: [id], onDelete: Restrict)
+  size          MaterialSize     @relation(fields: [sizeId], references: [id], onDelete: Restrict)
+  statusHistory RawMaterialStatusLog[]
+  cuttingInputs CuttingInput[]
+
+  @@map("raw_materials")
+}
+
+model VendorRate {
+  id            Int      @id @default(autoincrement())
+  vendorId      Int      @map("vendor_id")
+  pointId       Int      @map("point_id")
+  ratePerKg     Decimal  @map("rate_per_kg") @db.Decimal(10, 2)
+  effectiveDate DateTime @map("effective_date") @db.Date
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  vendor        Vendor        @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  point         MaterialPoint @relation(fields: [pointId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorId, pointId, effectiveDate])
+  @@map("vendor_rates")
+}
+
+/// One cutting job: whole raw material lots go in, counted finished products come out.
+model Cutting {
+  id               Int      @id @default(autoincrement())
+  cuttingDate      DateTime @map("cutting_date") @db.Date
+  notes            String?
+  /// Rolled up from the lines so the list can be shown without loading them
+  totalInputWeight Decimal  @default(0) @map("total_input_weight") @db.Decimal(12, 3)
+  totalInputCost   Decimal  @default(0) @map("total_input_cost") @db.Decimal(12, 2)
+  totalOutputCount Decimal  @default(0) @map("total_output_count") @db.Decimal(12, 2)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  inputs           CuttingInput[]
+  outputs          CuttingOutput[]
+
+  @@map("cuttings")
+}
+
+/// A raw material lot fed into a cutting. A lot can only be cut once.
+model CuttingInput {
+  id            Int     @id @default(autoincrement())
+  cuttingId     Int     @map("cutting_id")
+  rawMaterialId Int     @map("raw_material_id")
+  /// Copied from the lot at the time of cutting, so history survives later edits
+  weightUsed    Decimal @map("weight_used") @db.Decimal(10, 3)
+  costUsed      Decimal @map("cost_used") @db.Decimal(12, 2)
+
+  cutting       Cutting     @relation(fields: [cuttingId], references: [id], onDelete: Cascade)
+  rawMaterial   RawMaterial @relation(fields: [rawMaterialId], references: [id], onDelete: Restrict)
+
+  /// A lot belongs to at most one cutting, so the database enforces it too
+  @@unique([rawMaterialId])
+  @@map("cutting_inputs")
+}
+
+/// How many pieces of a product came out of a cutting.
+model CuttingOutput {
+  id        Int     @id @default(autoincrement())
+  cuttingId Int     @map("cutting_id")
+  productId Int     @map("product_id")
+  quantity  Decimal @db.Decimal(10, 2)
+  notes     String?
+
+  cutting   Cutting @relation(fields: [cuttingId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@map("cutting_outputs")
+}
+
+/// What a vendor charges to put one piece of a product through a given stage.
+/// Two ways to charge: a flat amount per piece, or a rate per inch of the
+/// product's height. Dated like every other rate here, so old jobs keep the
+/// price they were billed at.
+model ProcessRate {
+  id            Int      @id @default(autoincrement())
+  /// plasma, tinker or buffing
+  stage         String
+  vendorId      Int      @map("vendor_id")
+  productId     Int      @map("product_id")
+  /// flat or per_inch
+  chargeType    String   @default("flat") @map("charge_type")
+  /// Charged per piece when chargeType is flat
+  flatCharge    Decimal  @default(0) @map("flat_charge") @db.Decimal(10, 2)
+  /// Charged per inch of product height when chargeType is per_inch
+  ratePerInch   Decimal  @default(0) @map("rate_per_inch") @db.Decimal(10, 2)
+  effectiveDate DateTime @map("effective_date") @db.Date
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  vendor        Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([stage, vendorId, productId, effectiveDate])
+  @@map("process_rates")
+}
+
+/// One batch of pieces going through one stage of the line, either on our own
+/// floor or out to a vendor.
+///
+/// The stages run in order - cutting feeds plasma, plasma feeds tinker, tinker
+/// feeds buffing - and a stage can only draw on pieces the stage before it has
+/// finished. That is what `workStatus` is for: pieces on an in-progress job are
+/// committed to this stage but not yet available to the next one, which is how
+/// the count of what is sitting at the tinker (or anywhere else) is known.
+///
+/// Only vendor jobs cost anything; in-house jobs are recorded to keep the
+/// count of what has been processed honest.
+model ProcessJob {
+  id            Int      @id @default(autoincrement())
+  /// plasma, tinker or buffing
+  stage         String
+  jobDate       DateTime @map("job_date") @db.Date
+  /// in_house or vendor
+  mode          String   @default("in_house")
+  /// Set only for vendor jobs
+  vendorId      Int?     @map("vendor_id")
+  /// in_progress until the work comes back, then completed - only completed
+  /// pieces move on to the next stage
+  workStatus    String   @default("in_progress") @map("work_status")
+  completedDate DateTime? @map("completed_date") @db.Date
+  /// not_applicable for in-house work, which costs us nothing to pay out.
+  /// Vendor jobs start not_paid and close to paid once picked into a
+  /// VendorPayment, even if that payment did not fully cover them - the
+  /// shortfall becomes part of the vendor's payableBalance instead.
+  status        String   @default("not_applicable") // not_applicable, not_paid, paid
+  notes         String?
+  /// Rolled up from the lines so the list can be shown without loading them
+  totalQuantity Decimal  @default(0) @map("total_quantity") @db.Decimal(12, 2)
+  totalCost     Decimal  @default(0) @map("total_cost") @db.Decimal(12, 2)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  vendor        Vendor?  @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  items         ProcessJobItem[]
+  paymentItems  VendorPaymentItem[]
+
+  @@index([stage, workStatus])
+  @@map("process_jobs")
+}
+
+/// One product's pieces within a job, with the charge worked out at the time.
+/// The rate, height and unit cost are copied here rather than looked up later,
+/// so re-pricing a vendor never rewrites what was billed.
+model ProcessJobItem {
+  id           Int      @id @default(autoincrement())
+  jobId        Int      @map("job_id")
+  productId    Int      @map("product_id")
+  quantity     Decimal  @db.Decimal(12, 2)
+  /// flat, per_inch, or none for in-house work
+  chargeType   String   @default("none") @map("charge_type")
+  /// The product's height in inches when billed per inch, converted from
+  /// whatever unit the product records it in
+  heightInches Decimal? @map("height_inches") @db.Decimal(10, 2)
+  /// The per-inch rate or flat charge the unit cost came from
+  rate         Decimal  @default(0) @db.Decimal(10, 2)
+  /// Cost of a single piece
+  unitCost     Decimal  @default(0) @map("unit_cost") @db.Decimal(10, 2)
+  /// unitCost * quantity
+  totalCost    Decimal  @default(0) @map("total_cost") @db.Decimal(12, 2)
+  notes        String?
+
+  job          ProcessJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([productId])
+  @@map("process_job_items")
+}
+
+/// Money paid out to a vendor on one occasion: whichever unpaid jobs were
+/// picked close out for good, their total plus anything already owed becomes
+/// the amount due this round, and what we actually paid (cash and/or bank)
+/// comes off it. Whatever is left is NOT reattached to any job - it carries
+/// forward as the vendor's payableBalance, so a vendor can be paid part now
+/// and the rest later.
+model VendorPayment {
+  id             Int      @id @default(autoincrement())
+  vendorId       Int      @map("vendor_id")
+  paymentDate    DateTime @map("payment_date") @db.Date
+  /// Vendor.payableBalance immediately before this payment.
+  previousBalance Decimal @default(0) @map("previous_balance") @db.Decimal(10, 2)
+  /// Total of the jobs picked in this payment (0 if none - a pure balance payment).
+  jobTotal       Decimal  @default(0) @map("job_total") @db.Decimal(10, 2)
+  cashAmount     Decimal  @default(0) @map("cash_amount") @db.Decimal(10, 2)
+  bankAmount     Decimal  @default(0) @map("bank_amount") @db.Decimal(10, 2)
+  bankAccountId  Int?     @map("bank_account_id")
+  /// cashAmount + bankAmount
+  totalAmount    Decimal  @map("total_amount") @db.Decimal(10, 2)
+  /// Vendor.payableBalance immediately after (previousBalance + jobTotal - totalAmount).
+  newBalance     Decimal  @default(0) @map("new_balance") @db.Decimal(10, 2)
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  vendor         Vendor       @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  bankAccount    BankAccount? @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
+  items          VendorPaymentItem[]
+
+  @@map("vendor_payments")
+}
+
+/// One job that was closed out as part of a VendorPayment.
+model VendorPaymentItem {
+  id          Int      @id @default(autoincrement())
+  paymentId   Int      @map("payment_id")
+  jobId       Int      @map("job_id")
+  /// The job's total_cost at the time it was closed, kept for history.
+  jobAmount   Decimal  @map("job_amount") @db.Decimal(10, 2)
+
+  payment     VendorPayment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  job         ProcessJob    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_payment_items")
+}
+
+model RawMaterialStatusLog {
+  id            Int      @id @default(autoincrement())
+  rawMaterialId Int      @map("raw_material_id")
+  status        String
+  notes         String?
+  changedAt     DateTime @default(now()) @map("changed_at")
+
+  rawMaterial   RawMaterial @relation(fields: [rawMaterialId], references: [id], onDelete: Cascade)
+
+  @@map("raw_material_status_logs")
+}

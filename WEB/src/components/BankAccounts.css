@@ -1,0 +1,42 @@
+.bank-accounts {
+  width: 100%;
+}
+
+.bank-accounts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bank-accounts-table thead {
+  background: #f8f9fa;
+}
+
+.bank-accounts-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.bank-accounts-table td {
+  padding: 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.bank-accounts-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.account-type-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #e7f3ff;
+  color: #004085;
+}
+
+
+

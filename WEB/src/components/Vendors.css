@@ -1,0 +1,404 @@
+.vendors {
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.vendors-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.vendors-table thead {
+  background: #f8f9fa;
+}
+
+.vendors-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.vendors-table td {
+  padding: 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.vendors-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.inactive {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.btn-primary {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.btn-primary:hover {
+  background: #2980b9;
+}
+
+.btn-edit {
+  background: #f39c12;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.btn-edit:hover {
+  background: #e67e22;
+}
+
+.btn-delete {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-delete:hover {
+  background: #c0392b;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-secondary {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: #7f8c8d;
+}
+
+.btn-rate {
+  background: #9b59b6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.btn-rate:hover {
+  background: #8e44ad;
+}
+
+.modal-large {
+  max-width: 800px;
+}
+
+.rate-section h4 {
+  color: #2c3e50;
+  margin-top: 25px;
+  margin-bottom: 15px;
+}
+
+.rate-empty {
+  color: #666;
+  padding: 15px;
+  text-align: center;
+  background: #f8f9fa;
+  border-radius: 5px;
+  margin: 0;
+}
+
+/* Current rate per point, shown as a row of cards */
+.current-rate-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.rate-chip {
+  background: #e8f5e9;
+  border-left: 4px solid #4caf50;
+  border-radius: 5px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rate-chip-point {
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.rate-chip-value {
+  color: #2c3e50;
+  font-size: 15px;
+}
+
+.rate-chip-date {
+  font-size: 11px;
+  color: #7f8c8d;
+}
+
+.add-rate-form {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.add-rate-form h4 {
+  margin-top: 0;
+}
+
+.rate-log-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.rate-log-table thead {
+  background: #f8f9fa;
+}
+
+.rate-log-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.rate-log-table td {
+  padding: 12px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.rate-log-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.rate-log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.rate-log-header h4 {
+  margin: 0;
+}
+
+.rate-log-header select {
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  max-width: 200px;
+}
+
+/* Caps the log height so a long history never stretches the modal */
+.rate-log-scroll {
+  max-height: 280px;
+  overflow-y: auto;
+  margin-top: 10px;
+  border: 1px solid #eee;
+  border-radius: 5px;
+}
+
+.rate-log-scroll .rate-log-table {
+  margin-top: 0;
+}
+
+.rate-log-scroll thead th {
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  z-index: 1;
+}
+
+.rate-log-toggle {
+  background: none;
+  border: none;
+  color: #3498db;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 10px 0 0;
+}
+
+.rate-log-toggle:hover {
+  text-decoration: underline;
+}
+
+/* A rate dated ahead of today is not the current rate yet */
+.rate-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #e3f2fd;
+  color: #1565c0;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.rate-chip {
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.rate-chip:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.rate-chip.selected {
+  border-left-color: #1565c0;
+  box-shadow: 0 0 0 2px #90caf9;
+}
+
+/* Raw material suppliers and plasma job shops are separate lists of people */
+.vendor-type-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.vendor-type-tabs button {
+  padding: 9px 20px;
+  border: 1px solid #dde3e8;
+  background: white;
+  color: #7f8c8d;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.vendor-type-tabs button:hover {
+  background: #f4f8fb;
+}
+
+.vendor-type-tabs button.active {
+  background: #3498db;
+  border-color: #3498db;
+  color: white;
+}

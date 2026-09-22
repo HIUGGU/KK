@@ -1,0 +1,20 @@
+{
+  "name": "employee-management-api",
+  "version": "1.0.0",
+  "description": "API server for Employee Management System",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "nodemon --config nodemon.json",
+    "start": "ts-node src/server.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
+
+
+
+
+
+
+
+

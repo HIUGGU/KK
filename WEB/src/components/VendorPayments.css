@@ -1,0 +1,440 @@
+.vendor-payments {
+  width: 100%;
+}
+
+.vendor-payments .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.vendor-payments .page-header h1 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.vendor-payments .table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.vendor-payments table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.vendor-payments thead {
+  background: #f8f9fa;
+}
+
+.vendor-payments th {
+  padding: 13px 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.vendor-payments td {
+  padding: 13px 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.vendor-payments .empty-row {
+  text-align: center;
+  color: #95a5a6;
+  padding: 30px 15px;
+}
+
+.vendor-payments .btn-primary {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.vendor-payments .btn-primary:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.vendor-payments .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.vendor-payments .btn-secondary {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.vendor-payments .btn-secondary:hover {
+  background: #7f8c8d;
+}
+
+.vendor-payments .btn-delete {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.vendor-payments .btn-delete:hover {
+  background: #c0392b;
+}
+
+.vendor-picker {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.vendor-picker label {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.vendor-picker select {
+  flex: 1;
+  max-width: 420px;
+  padding: 9px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* One tile per vendor, so what is owed to whom is visible without picking */
+.vendor-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.vendor-tile {
+  background: white;
+  border: 1px solid #e4e7ea;
+  border-left: 4px solid #e74c3c;
+  border-radius: 8px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.vendor-tile:hover {
+  background: #f8fafc;
+}
+
+.vendor-tile.active {
+  border-color: #3498db;
+  border-left-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.vendor-tile.settled {
+  border-left-color: #27ae60;
+}
+
+.vendor-tile-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.vendor-tile-amount {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.vendor-tile-label {
+  font-size: 11px;
+  color: #95a5a6;
+}
+
+.vendor-empty {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  text-align: center;
+  color: #7f8c8d;
+}
+
+.vendor-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.vendor-balance-banner {
+  background: white;
+  border-left: 4px solid #e74c3c;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.vendor-balance-banner strong {
+  font-size: 22px;
+}
+
+/* We overpaid: no longer money going out */
+.vendor-payments .credit {
+  color: #27ae60;
+}
+
+.vendor-panel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 22px;
+}
+
+.vendor-panel h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.vendor-panel-hint {
+  margin: 0 0 15px;
+  font-size: 13px;
+  color: #7f8c8d;
+}
+
+.vendor-panel .table-container {
+  box-shadow: none;
+  border: 1px solid #e4e7ea;
+}
+
+.vendor-jobs-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+  accent-color: #3498db;
+  cursor: pointer;
+}
+
+.vendor-jobs-table input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.selected-row {
+  background: #eef5fb;
+}
+
+.job-items-cell {
+  font-size: 13px;
+  color: #7f8c8d;
+  max-width: 320px;
+}
+
+.vendor-form {
+  border-top: 1px solid #eef0f2;
+  margin-top: 25px;
+  padding-top: 20px;
+}
+
+.vendor-form-title {
+  margin: 0 0 6px;
+  font-size: 16px;
+  color: #2c3e50;
+}
+
+/* What is owed this round, built up line by line before the amount is entered */
+.vendor-calc {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin-bottom: 15px;
+}
+
+.vendor-calc > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.vendor-calc-total {
+  border-top: 1px solid #dee2e6;
+  margin-top: 6px;
+  padding-top: 10px !important;
+  font-weight: 700;
+}
+
+.vendor-quickfill {
+  margin-bottom: 15px;
+}
+
+.form-error-banner {
+  background: #fdecea;
+  border-left: 3px solid #e74c3c;
+  color: #c0392b;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.vendor-payments .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 18px;
+}
+
+.vendor-payments .form-group {
+  margin-bottom: 18px;
+}
+
+.vendor-payments .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.vendor-payments .form-group input,
+.vendor-payments .form-group select,
+.vendor-payments .form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.vendor-form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.vendor-entered-total {
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.vendor-hint {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #95a5a6;
+}
+
+.history-row {
+  cursor: pointer;
+}
+
+.history-row:hover {
+  background: #f4f8fb;
+}
+
+.history-row.open {
+  background: #eef5fb;
+}
+
+.vendor-payments .expander {
+  display: inline-block;
+  color: #7f8c8d;
+  transition: transform 0.15s;
+  font-size: 14px;
+}
+
+.vendor-payments .expander.open {
+  transform: rotate(90deg);
+}
+
+.detail-row td {
+  padding: 0 !important;
+  background: #f8fafc;
+}
+
+.detail-wrap {
+  padding: 15px 20px 20px 50px;
+  overflow-x: auto;
+}
+
+.detail-job + .detail-job {
+  margin-top: 18px;
+}
+
+.detail-job h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #2c3e50;
+}
+
+.detail-table {
+  background: white;
+  border: 1px solid #e4e7ea;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.detail-table th {
+  padding: 9px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.detail-table td {
+  padding: 9px 12px;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f2f4;
+}
+
+.detail-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.detail-note {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+@media (max-width: 900px) {
+  .vendor-payments .form-row {
+    grid-template-columns: 1fr;
+  }
+}

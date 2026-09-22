@@ -1,0 +1,452 @@
+.products {
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.products-table thead {
+  background: #f8f9fa;
+}
+
+.products-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.products-table td {
+  padding: 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.products-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.inactive {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.btn-primary {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.btn-primary:hover {
+  background: #2980b9;
+}
+
+.btn-edit {
+  background: #f39c12;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.btn-edit:hover {
+  background: #e67e22;
+}
+
+.btn-delete {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-delete:hover {
+  background: #c0392b;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Scoped to .products: other components define a global `.form-row` that lands
+   later in the bundle and would otherwise win on equal specificity. */
+.products .form-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.form-section {
+  border-top: 1px solid #e9ecef;
+  padding-top: 15px;
+  margin-bottom: 15px;
+}
+
+.form-section-title {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #7f8c8d;
+}
+
+.product-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.spec-chip {
+  background: #eef2f7;
+  color: #34495e;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Point and size come from the raw material masters, not measurements */
+.spec-chip.material {
+  background: #e8f0fe;
+  color: #1a56b8;
+  font-weight: 600;
+}
+
+.specs-empty {
+  color: #95a5a6;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-secondary {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: #7f8c8d;
+}
+
+.btn-rate {
+  background: #9b59b6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.btn-rate:hover {
+  background: #8e44ad;
+}
+
+.rate-history-section {
+  margin-top: 20px;
+}
+
+.rate-history-section h3 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #e8f5e9;
+  border-radius: 5px;
+  border-left: 4px solid #4caf50;
+}
+
+.rate-history-section h4 {
+  color: #2c3e50;
+  margin-top: 20px;
+  margin-bottom: 15px;
+}
+
+.add-rate-form {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 30px;
+}
+
+.rate-history-list {
+  margin-top: 20px;
+}
+
+.rate-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.rate-history-table thead {
+  background: #f8f9fa;
+}
+
+.rate-history-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.rate-history-table td {
+  padding: 12px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.rate-history-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+
+/* Price range across the standard rate and all client-specific prices */
+.price-range {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.price-range-value {
+  font-weight: 600;
+  color: #2c3e50;
+  white-space: nowrap;
+}
+
+.price-range-value.standard-only {
+  font-weight: 400;
+  color: #7f8c8d;
+}
+
+.price-range-note {
+  font-size: 11px;
+  color: #95a5a6;
+}
+
+/* Pricing modal tabs */
+.modal-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid #dee2e6;
+  margin: 20px 0;
+}
+
+.modal-tab {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 10px 18px;
+  margin-bottom: -2px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #7f8c8d;
+}
+
+.modal-tab:hover {
+  color: #2c3e50;
+}
+
+.modal-tab.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+}
+
+/* Price change log */
+.price-log-hint {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 15px;
+}
+
+.price-log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.price-log-table thead {
+  background: #f8f9fa;
+}
+
+.price-log-table th {
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.price-log-table td {
+  padding: 10px;
+  border-bottom: 1px solid #dee2e6;
+  vertical-align: middle;
+}
+
+.price-log-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.log-when {
+  white-space: nowrap;
+  color: #7f8c8d;
+}
+
+.scope-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.scope-badge.standard {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.scope-badge.client {
+  background: #f3e5f5;
+  color: #6a1b9a;
+}
+
+.log-change {
+  white-space: nowrap;
+}
+
+.log-change .old-price {
+  color: #95a5a6;
+  text-decoration: line-through;
+}
+
+.log-change .arrow {
+  margin: 0 6px;
+  color: #95a5a6;
+}
+
+.log-change .new-price {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.log-change .new-price.deleted {
+  color: #c0392b;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.log-change .new-price.created {
+  color: #1e8449;
+}

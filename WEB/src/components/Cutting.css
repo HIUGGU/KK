@@ -1,0 +1,709 @@
+.cutting {
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.cutting-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cutting-table thead {
+  background: #f8f9fa;
+}
+
+.cutting-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.cutting-table td {
+  padding: 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.btn-primary {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: #7f8c8d;
+}
+
+.btn-edit {
+  background: #f39c12;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.btn-edit:hover {
+  background: #e67e22;
+}
+
+.btn-delete {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-delete:hover {
+  background: #c0392b;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.summary-card {
+  background: white;
+  padding: 18px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #3498db;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* What is still waiting to be cut reads as stock, not as output */
+.summary-card.available {
+  border-left-color: #27ae60;
+}
+
+.summary-label {
+  font-size: 13px;
+  color: #7f8c8d;
+  font-weight: 600;
+}
+
+.summary-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.summary-sub {
+  font-size: 11px;
+  color: #95a5a6;
+}
+
+.section-title {
+  margin: 0;
+  padding: 15px 20px 0;
+  font-size: 15px;
+  color: #2c3e50;
+}
+
+.product-stock {
+  margin-bottom: 25px;
+}
+
+.stock-negative {
+  color: #c0392b;
+}
+
+.filters {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 180px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.filter-group input,
+.filter-group select {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.filter-clear {
+  min-width: 0;
+}
+
+/* Cutting rows expand to show what went in and what came out */
+.entry-row {
+  cursor: pointer;
+}
+
+.entry-row:hover {
+  background: #f4f8fb;
+}
+
+.entry-row.open {
+  background: #eef5fb;
+}
+
+.expander {
+  display: inline-block;
+  color: #7f8c8d;
+  transition: transform 0.15s;
+  font-size: 14px;
+}
+
+.expander.open {
+  transform: rotate(90deg);
+}
+
+.lines-row td {
+  padding: 0 !important;
+  background: #f8fafc;
+}
+
+.lines-wrap {
+  padding: 15px 20px 20px 55px;
+  overflow-x: auto;
+}
+
+/* Inputs and outputs sit side by side where there is room, stacked when not */
+.detail-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 1100px) {
+  .detail-columns {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+.detail-block h4 {
+  margin: 0 0 10px;
+  color: #2c3e50;
+  font-size: 13px;
+}
+
+.lines-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border: 1px solid #e4e7ea;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.lines-table thead {
+  background: #f1f4f7;
+}
+
+.lines-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 1px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.lines-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f2f4;
+  font-size: 13px;
+}
+
+.lines-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.lines-note {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+/* The picker needs the room a default dialog does not have */
+.cutting .modal-large {
+  max-width: 1000px;
+  width: 95%;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.form-hint {
+  color: #c0392b;
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+
+.items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.items-header h4 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.items-hint {
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+/* Raw material picker */
+.picker-section {
+  margin-bottom: 25px;
+}
+
+.picker-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.picker-filters input,
+.picker-filters select {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.picker-search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.picker-filters .btn-add-row {
+  margin-top: 0;
+}
+
+/* Capped so a long stock list never pushes the product rows off the dialog */
+.picker-table-wrap {
+  border: 1px solid #e4e7ea;
+  border-radius: 6px;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.picker-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.picker-table thead {
+  background: #f1f4f7;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.picker-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 1px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.picker-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #f0f2f4;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.picker-table tbody tr {
+  cursor: pointer;
+}
+
+.picker-table tbody tr:hover {
+  background: #f4f8fb;
+}
+
+.picker-table tbody tr.picked {
+  background: #e8f5e9;
+}
+
+.picker-table tbody tr.picked:hover {
+  background: #ddeedf;
+}
+
+/* A line of a different point/size than the cutting has already locked in */
+.picker-table tbody tr.blocked {
+  cursor: not-allowed;
+  color: #b5bcc2;
+}
+
+.picker-table tbody tr.blocked:hover {
+  background: inherit;
+}
+
+.picker-table tbody tr.blocked input[type='checkbox'] {
+  cursor: not-allowed;
+}
+
+.picker-table input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+  accent-color: #3498db;
+  cursor: pointer;
+}
+
+.picker-empty {
+  margin: 0;
+  padding: 30px 20px;
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 13px;
+}
+
+.picked-bar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #eef5fb;
+  border-left: 4px solid #3498db;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #2c3e50;
+  align-items: center;
+}
+
+/* The point/size a cutting has locked onto, shown next to the selection count */
+.spec-chip {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: #d6eaf8;
+  color: #2874a6;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.btn-clear-spec {
+  background: none;
+  border: 1px solid #3498db;
+  color: #3498db;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.btn-clear-spec:hover {
+  background: #eaf4fc;
+}
+
+.matching-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #7f8c8d;
+  cursor: pointer;
+}
+
+.matching-check input {
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Output lines: stacked cards on a narrow window, one row per product when wide */
+.items-section {
+  margin-bottom: 20px;
+}
+
+.items-grid {
+  border: 1px solid #e4e7ea;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.items-grid-head {
+  display: none;
+}
+
+.item-line {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 15px;
+  border-bottom: 1px solid #eef0f2;
+  background: #fcfdfe;
+}
+
+.item-line:last-child {
+  border-bottom: none;
+}
+
+.item-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.item-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7f8c8d;
+}
+
+.item-field select,
+.item-field input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.item-remove {
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.btn-row-remove {
+  background: #f8d7da;
+  color: #c0392b;
+  border: none;
+  height: 34px;
+  width: 44px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.btn-row-remove:hover:not(:disabled) {
+  background: #f5c2c7;
+}
+
+.btn-row-remove:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-add-row {
+  background: none;
+  border: 1px dashed #3498db;
+  color: #3498db;
+  padding: 9px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.btn-add-row:hover:not(:disabled) {
+  background: #eaf4fc;
+}
+
+.btn-add-row:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (min-width: 720px) {
+  .items-grid-head,
+  .item-line {
+    grid-template-columns: 1.6fr 0.8fr 1.4fr 40px;
+    gap: 10px;
+    align-items: start;
+  }
+
+  .items-grid-head {
+    display: grid;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 12px;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+
+  .item-field label {
+    display: none;
+  }
+
+  .btn-row-remove {
+    width: 100%;
+  }
+}
+
+.total-preview {
+  background: #e8f5e9;
+  border-left: 4px solid #4caf50;
+  padding: 12px 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .cutting .modal-content {
+    padding: 20px;
+    width: 96%;
+  }
+
+  .cutting .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

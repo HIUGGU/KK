@@ -1,0 +1,449 @@
+.attendance {
+  max-width: 1400px;
+}
+
+.attendance-controls {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.control-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.control-group select,
+.control-group input {
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.control-group select:focus,
+.control-group input:focus {
+  border-color: #667eea;
+}
+
+.quick-actions {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.quick-actions h3 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+.mark-attendance-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.employee-attendance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.employee-attendance-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s;
+}
+
+.employee-attendance-card:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.employee-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.attendance-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-full-day,
+.btn-half-day,
+.btn-absent {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s;
+  min-width: 80px;
+}
+
+.btn-full-day {
+  background: #2ecc71;
+  color: white;
+}
+
+.btn-full-day:hover {
+  background: #27ae60;
+}
+
+.btn-full-day.active {
+  background: #1e8449;
+  box-shadow: 0 0 0 2px #2ecc71;
+}
+
+.btn-half-day {
+  background: #f39c12;
+  color: white;
+}
+
+.btn-half-day:hover {
+  background: #e67e22;
+}
+
+.btn-half-day.active {
+  background: #d68910;
+  box-shadow: 0 0 0 2px #f39c12;
+}
+
+.btn-absent {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-absent:hover {
+  background: #c0392b;
+}
+
+.btn-absent.active {
+  background: #a93226;
+  box-shadow: 0 0 0 2px #e74c3c;
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attendance-table thead {
+  background: #f8f9fa;
+}
+
+.attendance-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.attendance-table td {
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.attendance-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.attendance-type-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.attendance-type-badge.full_day {
+  background: #d4edda;
+  color: #155724;
+}
+
+.attendance-type-badge.half_day {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.attendance-type-badge.absent {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.present {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.absent {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Work map calendar */
+.attendance-calendar {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.calendar-header h3 {
+  color: #2c3e50;
+  margin: 0;
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.calendar-nav button {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  color: #2c3e50;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.calendar-nav button:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.calendar-month-label {
+  min-width: 150px;
+  text-align: center;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-weekdays {
+  margin-bottom: 6px;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7f8c8d;
+  text-transform: uppercase;
+}
+
+.calendar-day {
+  position: relative;
+  height: 64px;
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.calendar-day.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.calendar-day:not(.empty):hover {
+  border-color: #667eea;
+  z-index: 5;
+}
+
+.calendar-day.selected {
+  border-color: #3498db;
+}
+
+.calendar-day.today .calendar-day-number {
+  background: #3498db;
+  color: white;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day-number {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.calendar-day-count {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #155724;
+}
+
+/* Heat levels */
+.level-0 { background: #f4f6f8; }
+.level-1 { background: #d4edda; }
+.level-2 { background: #a3d9b1; }
+.level-3 { background: #5cc27c; }
+.level-4 { background: #2ecc71; }
+
+.calendar-day.level-3 .calendar-day-number,
+.calendar-day.level-4 .calendar-day-number,
+.calendar-day.level-3 .calendar-day-count,
+.calendar-day.level-4 .calendar-day-count {
+  color: white;
+}
+
+/* Hover tooltip */
+.calendar-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  min-width: 260px;
+  max-width: 340px;
+  background: #2c3e50;
+  color: white;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  z-index: 10;
+  cursor: default;
+  pointer-events: none;
+}
+
+.calendar-tooltip.align-center {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.calendar-tooltip.align-left {
+  left: 0;
+}
+
+.calendar-tooltip.align-right {
+  right: 0;
+}
+
+.calendar-day:hover .calendar-tooltip {
+  display: block;
+}
+
+.calendar-tooltip-title {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.calendar-tooltip-empty {
+  font-size: 12px;
+  color: #bdc3c7;
+}
+
+.calendar-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 3px 0;
+}
+
+.calendar-tooltip-row.muted {
+  opacity: 0.6;
+}
+
+.calendar-tooltip-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-tooltip-row .attendance-type-badge {
+  padding: 2px 8px;
+  font-size: 10px;
+}
+
+.calendar-tooltip-amount {
+  font-variant-numeric: tabular-nums;
+  color: #d5f5e3;
+}
+
+.calendar-tooltip-footer {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 11px;
+  color: #bdc3c7;
+}
+
+.calendar-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 12px;
+  font-size: 11px;
+  color: #7f8c8d;
+}
+
+.legend-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
