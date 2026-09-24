@@ -35,3 +35,12 @@ input, select, textarea {
   outline: none;
 }
 
+
+/* Date inputs open the calendar when clicked anywhere (see main.tsx) */
+input[type="date"] {
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
